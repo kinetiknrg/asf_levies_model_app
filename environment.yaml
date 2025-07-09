@@ -1,3 +1,4 @@
+name: asf_levies_model_app
 channels:
   - nodefaults
   - conda-forge
