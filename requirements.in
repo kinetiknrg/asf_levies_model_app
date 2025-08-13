@@ -1,0 +1,5 @@
+altair
+pandas
+PyYAML
+streamlit
+asf_levies_model @ git+https://github.com/nestauk/asf_levies_model

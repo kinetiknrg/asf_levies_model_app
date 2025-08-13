@@ -1,0 +1,8 @@
+# Production dependencies
+altair
+pandas
+PyYAML
+streamlit
+
+# Local, editable version of the backend
+-e ../asf_levies_model
