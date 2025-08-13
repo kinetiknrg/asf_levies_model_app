@@ -72,33 +72,108 @@ if (
 ):
     st.session_state.rebalancing_weights = create_scenario_weights_dict(levies)
 
+
 # Show selectors for levy reform scenario in side bar
 with st.sidebar:
     st.info(
         "**Test a levy reform scenario** by adjusting the settings below. *Note: You can hide or adjust the width of this sidebar.*"
     )
 
-    # User input to choose rebalancing approach
-    approach = st.radio(
-        "**Select a preset approach or create your own:**",
-        [
-            "Current",
-            "Rebalance all levies on electricity to gas",
-            "Remove all levies on electricity to taxation",
-            "Rebalance RO and FIT levies from electricity to gas",
-            "Remove RO and FIT levies from electricity to taxation",
-            "Create my own",
-        ],
-        index=[
-            "Current",
-            "Rebalance all levies on electricity to gas",
-            "Remove all levies on electricity to taxation",
-            "Rebalance RO and FIT levies from electricity to gas",
-            "Remove RO and FIT levies from electricity to taxation",
-            "Create my own",
-        ].index(st.session_state.approach),
-        key="approach",
+    internal_to_display_map = {
+        "Current": "Status Quo",
+        "Rebalance all levies on electricity to gas": "Rebalancing ⚖️ all levies to gas",
+        "Rebalance RO and FIT levies from electricity to gas": "Rebalancing ⚖️ RO+FIT levies to gas",
+        "Remove all levies on electricity to taxation": "Taxation 👑 all levies to taxation",
+        "Remove RO and FIT levies from electricity to taxation": "Taxation 👑 RO+FIT levies to taxation",
+        "Create my own": "Create my own",
+    }
+    selected_display = internal_to_display_map.get(
+        st.session_state.approach, st.session_state.approach
     )
+    st.success(f"**Selected:** {selected_display}")
+
+    if st.button(
+        "⚖️ Status Quo",
+        use_container_width=True,
+        type="primary" if st.session_state.approach == "Current" else "secondary",
+    ):
+        st.session_state.approach = "Current"
+        st.rerun()
+
+    st.markdown("---")
+
+    st.subheader("Rebalancing ⚖️")
+    st.caption("From electricity :zap: to gas :fire:")
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button(
+            "All levies",
+            key="rebalance_all",
+            use_container_width=True,
+            type="primary"
+            if st.session_state.approach == "Rebalance all levies on electricity to gas"
+            else "secondary",
+        ):
+            st.session_state.approach = "Rebalance all levies on electricity to gas"
+            st.rerun()
+    with col2:
+        if st.button(
+            "RO + FIT only",
+            help="Renewables Obligation and Feed-in Tariff",
+            key="rebalance_ro_fit",
+            use_container_width=True,
+            type="primary"
+            if st.session_state.approach
+            == "Rebalance RO and FIT levies from electricity to gas"
+            else "secondary",
+        ):
+            st.session_state.approach = (
+                "Rebalance RO and FIT levies from electricity to gas"
+            )
+            st.rerun()
+
+    st.subheader("Taxation 👑")
+    st.caption("From electricity :zap: to general taxation")
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button(
+            "All levies",
+            key="taxation_all",
+            use_container_width=True,
+            type="primary"
+            if st.session_state.approach
+            == "Remove all levies on electricity to taxation"
+            else "secondary",
+        ):
+            st.session_state.approach = "Remove all levies on electricity to taxation"
+            st.rerun()
+    with col2:
+        if st.button(
+            "RO + FIT only",
+            help="Renewables Obligation and Feed-in Tariff",
+            key="taxation_ro_fit",
+            use_container_width=True,
+            type="primary"
+            if st.session_state.approach
+            == "Remove RO and FIT levies from electricity to taxation"
+            else "secondary",
+        ):
+            st.session_state.approach = (
+                "Remove RO and FIT levies from electricity to taxation"
+            )
+            st.rerun()
+
+    st.markdown("---")
+
+    if st.button(
+        "✍️ Create my own",
+        use_container_width=True,
+        type="primary" if st.session_state.approach == "Create my own" else "secondary",
+    ):
+        st.session_state.approach = "Create my own"
+        st.rerun()
+
+    st.markdown("---")
 
     if st.session_state.approach == "Create my own":
         st.session_state.rebalancing_weights = create_scenario_weights_dict(levies)
@@ -406,6 +481,11 @@ archetype_sizes = archetype_sizes.rename(
 rebalanced_summary_table = rebalanced_summary_table.merge(
     archetype_sizes, on="Name", how="left"
 )
+
+# Fill any missing values in ArchetypeSize with 0 to prevent rendering errors
+rebalanced_summary_table["ArchetypeSize"] = rebalanced_summary_table[
+    "ArchetypeSize"
+].fillna(0)
 
 st.markdown(
     f"<p style='color:black; font-size: 20px;'><b>Distributional impacts: Effect on energy bills</b></p>",
