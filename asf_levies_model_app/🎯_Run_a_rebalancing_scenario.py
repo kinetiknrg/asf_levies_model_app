@@ -1,6 +1,6 @@
 import streamlit as st
 
-from asf_levies_model_app.utils.app_utils import (
+from .utils.app_utils import (
     instantiate_levies,
     get_approach_weights,
     instantiate_tariffs,
