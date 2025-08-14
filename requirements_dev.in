@@ -4,5 +4,6 @@ pandas
 PyYAML
 streamlit
 
-# Local, editable version of the backend
--e ../asf_levies_model
+# Development dependencies
+-e ../asf_levies_model  # <-- Local, editable version of the backend
+-e .                    # <-- The frontend app itself

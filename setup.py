@@ -17,8 +17,12 @@ BASE_DIR = Path(__file__).parent
 setup(
     name="asf_levies_model_app",
     long_description=open(BASE_DIR / "README.md").read(),
-    install_requires=read_lines(BASE_DIR / "requirements.txt"),
-    extras_require={"dev": read_lines(BASE_DIR / "requirements_dev.txt")},
+    install_requires=[
+        "streamlit",
+        "altair",
+        "pandas",
+        "pyyaml",
+    ],
     packages=find_packages(exclude=["docs"]),
     version="0.1.0",
     description="Web app for testing new scenarios in the ASF domestic energy bills and levies model.",
