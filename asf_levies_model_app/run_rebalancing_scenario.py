@@ -487,11 +487,14 @@ try:
 
     ofgem_archetypes_df = load_archetypes()
 
+    # Filter to primary archetypes only (first 24 rows) to exclude distributional data
+    primary_archetypes_df = ofgem_archetypes_df.iloc[:24]
+    
     baseline_consumers = instantiate_archetype_consumers(
-        ofgem_archetypes_df, baseline_gas_tariff, baseline_electricity_tariff
+        primary_archetypes_df, baseline_gas_tariff, baseline_electricity_tariff
     )
     rebalanced_consumers = instantiate_archetype_consumers(
-        ofgem_archetypes_df, rebalanced_gas_tariff, rebalanced_electricity_tariff
+        primary_archetypes_df, rebalanced_gas_tariff, rebalanced_electricity_tariff
     )
 
     # Result: Unit cost ratio
