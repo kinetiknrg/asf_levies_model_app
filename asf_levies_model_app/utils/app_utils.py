@@ -267,7 +267,7 @@ def instantiate_archetype_consumers(
             electricity_tariff=electricity_tariff,
             unit_converter=1_000,
         )
-        for row in range(1, 25)
+        for row in range(0, 24)
     ]
 
     return consumers
@@ -296,7 +296,7 @@ def instantiate_archetype_consumers_with_eligibility(
             electricity_tariff=electricity_tariff,
             scheme_eligible=True,
         )
-        for row in range(1, 25)
+        for row in range(0, 24)
     ]
 
     # Create list of ineligible Consumers (Average Ofgem archetypes only, n=24)
@@ -316,7 +316,7 @@ def instantiate_archetype_consumers_with_eligibility(
             electricity_tariff=electricity_tariff,
             scheme_eligible=True,
         )
-        for row in range(1, 25)
+        for row in range(0, 24)
     ]
     return eligible_consumers, ineligible_consumers
 
