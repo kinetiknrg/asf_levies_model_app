@@ -17,6 +17,12 @@ from asf_levies_model.consumers import Consumer, ConsumerCollection
 
 from asf_levies_model.summary import create_scenario_weights_dict
 
+import numpy as np
+import logging
+
+# Set up logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(funcName)s - %(message)s')
+
 
 def instantiate_levies(
     fileobject_annex_4,
@@ -64,7 +70,8 @@ def instantiate_levies(
             customers_gas=customers_gas,
             customers_elec=customers_elec,
         ),
-        levies.ECO.from_dataframe(data.process_data_ECO(fileobject_annex_4)),
+        levies.ECO4.from_dataframe(data.process_data_ECO(fileobject_annex_4)),
+        levies.GBIS.from_dataframe(data.process_data_ECO(fileobject_annex_4)),
         levies.FIT.from_dataframe(
             data.process_data_FIT(fileobject_annex_4),
             scaling_factor=fit_scaling_factor,
@@ -84,8 +91,11 @@ def instantiate_levies(
 
 def get_approach_weights(levies: List, approach_name: str) -> Dict:
 
+    logging.info(f"get_approach_weights called with approach_name: '{approach_name}'")
+
     # "Current"
     baseline_weights = create_scenario_weights_dict(levies)
+    logging.info("Successfully created baseline_weights.")
 
     # "Rebalance all levies on electricity to gas"
     all_gas_weights = create_scenario_weights_dict(levies)
@@ -99,6 +109,7 @@ def get_approach_weights(levies: List, approach_name: str) -> Dict:
             "new_variable_weight_gas": levy.electricity_variable_weight,
             "new_fixed_weight_gas": levy.electricity_fixed_weight,
         }
+    logging.info("Successfully created all_gas_weights.")
 
     # "Rebalance RO and FIT levies from electricity to gas"
     rebalance_ro_fit_weights = create_scenario_weights_dict(levies)
@@ -112,6 +123,7 @@ def get_approach_weights(levies: List, approach_name: str) -> Dict:
             "new_variable_weight_gas": levy.electricity_variable_weight,
             "new_fixed_weight_gas": levy.electricity_fixed_weight,
         }
+    logging.info("Successfully created rebalance_ro_fit_weights.")
 
     # "Remove all levies on electricity to taxation"
     sq_electricity_removal_weights = create_scenario_weights_dict(levies)
@@ -126,6 +138,7 @@ def get_approach_weights(levies: List, approach_name: str) -> Dict:
             "new_fixed_weight_elec",
         ]:
             sq_electricity_removal_weights[levy][weight_type] = 0.0
+    logging.info("Successfully created sq_electricity_removal_weights.")
 
     # "Remove RO and FIT levies from electricity to taxation"
     remove_ro_fit_weights = create_scenario_weights_dict(levies)
@@ -140,6 +153,7 @@ def get_approach_weights(levies: List, approach_name: str) -> Dict:
             "new_fixed_weight_elec",
         ]:
             remove_ro_fit_weights[levy][weight_type] = 0.0
+    logging.info("Successfully created remove_ro_fit_weights.")
 
     # Create lookup dictionary for weights of each approach
     approach_weights = {
@@ -153,6 +167,7 @@ def get_approach_weights(levies: List, approach_name: str) -> Dict:
     if approach_name not in approach_weights.keys():
         raise ValueError("Rebalancing approach name not recognised.")
 
+    logging.info(f"Successfully retrieved weights for '{approach_name}'.")
     return approach_weights[approach_name]
 
 
@@ -372,21 +387,47 @@ def tidy_to_pivot_summary(tidy_summary):
     pivot_summary_table = tidy_summary.pivot_table(
         index=["Name", "Scenario"], columns="Attribute", values="Value", aggfunc="first"
     ).reset_index()
-    pivot_summary_table = pivot_summary_table[
-        [
-            "Name",
-            "Scenario",
-            "main_heating_fuel",
-            "electricity_bill",
-            "gas_bill",
-            "combined_fuel_bill",
-            "fuel_poverty_gap",
-        ]
-    ].sort_values(by=["Scenario", "Name"])
+
+    # Define columns to be used and to be converted to numeric
+    numeric_cols = [
+        "electricity_bill",
+        "gas_bill",
+        "combined_fuel_bill",
+        "fuel_poverty_gap",
+    ]
+
+    final_cols = [
+        "Name",
+        "Scenario",
+        "main_heating_fuel",
+    ] + numeric_cols
+
+    pivot_summary_table = pivot_summary_table[final_cols].sort_values(
+        by=["Scenario", "Name"]
+    )
+
+    # Convert object columns to numeric types to prevent charting errors
+    for col in numeric_cols:
+        pivot_summary_table[col] = pd.to_numeric(pivot_summary_table[col], errors='coerce')
+
+    logging.info(f"DataFrame created with shape {pivot_summary_table.shape}. Dtypes: {pivot_summary_table.dtypes.to_dict()}")
+
     return pivot_summary_table
 
 
 def make_archetype_bill_change_chart(rebalanced_summary_table, chart_width=1000):
+
+    # Data validation to prevent charting errors
+    # Ensure 'ArchetypeSize' is numeric and handle invalid values robustly
+    rebalanced_summary_table["ArchetypeSize"] = pd.to_numeric(
+        rebalanced_summary_table["ArchetypeSize"], errors="coerce"
+    )
+    rebalanced_summary_table["ArchetypeSize"] = rebalanced_summary_table[
+        "ArchetypeSize"
+    ].replace([np.inf, -np.inf], np.nan)
+    rebalanced_summary_table["ArchetypeSize"] = rebalanced_summary_table[
+        "ArchetypeSize"
+    ].fillna(1)
 
     # Fuel colours
     cmap_2 = {
@@ -411,19 +452,218 @@ def make_archetype_bill_change_chart(rebalanced_summary_table, chart_width=1000)
             sort=None,
             title="Energy consumer archetype (Lowest (A) to highest (J) income)",
         ),
-        size=alt.Size("ArchetypeSize:Q", title="No. of households"),
+        size=alt.Size(
+            "ArchetypeSize:Q", title="No. of households", scale=alt.Scale(range=[10, 1000])
+        ),
         color=alt.Color(
             "main_heating_fuel:N",
             scale=alt.Scale(domain=list(cmap_2.keys()), range=list(cmap_2.values())),
             title="Main heating fuel",
         ),
+        tooltip=[
+            alt.Tooltip("Name:N", title="Archetype"),
+            alt.Tooltip("bill_change:Q", title="Bill Change (£)", format=".2f"),
+            alt.Tooltip("main_heating_fuel:N", title="Main Heating Fuel"),
+            alt.Tooltip("ArchetypeSize:Q", title="Households", format=","),
+        ],
     )
     # x=0 base line
     rule = chart.mark_rule(strokeDash=[2, 2]).encode(x=alt.datum(0))
     # Layer dots and line
-    chart = alt.layer(points, rule).properties(width=chart_width)
+    chart = alt.layer(points, rule).properties(width=chart_width, height=alt.Step(15))
     chart = chart.configure_axis(
         labelColor="black", titleColor="black"
     ).configure_legend(labelColor="black", titleColor="black")
 
     return chart
+
+
+def make_all_archetypes_xy_chart(baseline_consumers: List, rebalanced_consumers: List, ofgem_archetypes_df: pd.DataFrame, chart_width=800):
+    """
+    Create XY scatter chart showing gas cost (x-axis) vs electricity cost (y-axis)
+    for all archetypes, with before and after rebalancing points.
+    """
+
+    # Create data for all archetypes
+    chart_data = []
+
+    for baseline_consumer, rebalanced_consumer in zip(baseline_consumers, rebalanced_consumers):
+        # Get archetype description from the dataframe
+        archetype_info = ofgem_archetypes_df[
+            ofgem_archetypes_df["AnnualConsumptionProfile"] == baseline_consumer.name
+        ]
+
+        archetype_desc = archetype_info["ArchetypeNickname"].iloc[0] if len(archetype_info) > 0 else "Description not available"
+        archetype_size = archetype_info["ArchetypeSize"].iloc[0] if len(archetype_info) > 0 else 0
+        heating_fuel = baseline_consumer.main_heating_fuel
+
+        # Baseline point
+        chart_data.append({
+            'gas_cost': baseline_consumer.gas_bill,
+            'electricity_cost': baseline_consumer.electricity_bill,
+            'scenario': 'Baseline',
+            'archetype': baseline_consumer.name,
+            'description': archetype_desc,
+            'heating_fuel': heating_fuel,
+            'total_bill': baseline_consumer.combined_fuel_bill,
+            'archetype_size': archetype_size
+        })
+
+        # Rebalanced point
+        chart_data.append({
+            'gas_cost': rebalanced_consumer.gas_bill,
+            'electricity_cost': rebalanced_consumer.electricity_bill,
+            'scenario': 'Rebalanced',
+            'archetype': rebalanced_consumer.name,
+            'description': archetype_desc,
+            'heating_fuel': heating_fuel,
+            'total_bill': rebalanced_consumer.combined_fuel_bill,
+            'archetype_size': archetype_size
+                })
+
+    # Convert list to DataFrame after all data is collected
+    chart_data = pd.DataFrame(chart_data)
+
+    # Filter to show only gas consumers in the chart
+    chart_data = chart_data[chart_data['heating_fuel'] == 'Gas'].copy()
+
+    # Color schemes
+    scenario_colors = {
+        'Baseline': '#1f77b4',      # Blue
+        'Rebalanced': '#ff7f0e'     # Orange
+    }
+
+    # Heating fuel colors (matching existing app pattern)
+    fuel_colors = {
+        "Gas": "#0000ff",
+        "Electricity": "#15A38C",
+        "Oil": "#F6B0C0",
+        "Other": "#d8d2ca"
+    }
+
+    # Create bubble chart for all archetypes
+    points = alt.Chart(chart_data).mark_circle(
+        opacity=0.8,
+        stroke='white',
+        strokeWidth=1
+    ).encode(
+                x=alt.X(
+            'gas_cost:Q',
+            title='Total Gas Cost (£, inc VAT)',
+            axis=alt.Axis(grid=True, format=',.0f'),
+            scale=alt.Scale(domainMin=600)
+        ),
+        y=alt.Y(
+            'electricity_cost:Q',
+            title='Total Electricity Cost (£, inc VAT)',
+            axis=alt.Axis(grid=True, format=',.0f'),
+            scale=alt.Scale(domainMin=600)
+        ),
+        color=alt.Color(
+            'scenario:N',
+            title='Scenario',
+            scale=alt.Scale(
+                domain=list(scenario_colors.keys()),
+                range=list(scenario_colors.values())
+            )
+        ),
+        shape=alt.Shape(
+            'heating_fuel:N',
+            title='Heating Fuel',
+            scale=alt.Scale(range=['circle', 'square', 'triangle-up', 'diamond'])
+        ),
+        size=alt.Size(
+            'archetype_size:Q',
+            title='Number of Households',
+            scale=alt.Scale(range=[50, 400])  # Min 50px, max 400px bubble size
+        ),
+        tooltip=[
+            alt.Tooltip('archetype:N', title='Archetype'),
+            alt.Tooltip('description:N', title='Profile'),
+            alt.Tooltip('scenario:N', title='Scenario'),
+            alt.Tooltip('heating_fuel:N', title='Heating Fuel'),
+            alt.Tooltip('gas_cost:Q', title='Gas Cost (£)', format=',.0f'),
+            alt.Tooltip('electricity_cost:Q', title='Electricity Cost (£)', format=',.0f'),
+            alt.Tooltip('total_bill:Q', title='Total Bill (£)', format=',.0f'),
+            alt.Tooltip('archetype_size:Q', title='Households', format=',')
+        ]
+    )
+
+    # Add connecting lines between baseline and rebalanced points for each archetype
+    lines = alt.Chart(chart_data).mark_line(
+        strokeWidth=1,
+        strokeDash=[3, 3],
+        opacity=0.4,
+        color='gray'
+    ).encode(
+        x='gas_cost:Q',
+        y='electricity_cost:Q',
+        detail='archetype:N'  # Group by archetype to connect pairs
+    )
+
+    # Combine points and lines
+    chart = alt.layer(lines, points).resolve_scale(
+        color='independent'
+    ).properties(
+        width=chart_width,
+        height=chart_width * 0.8,
+        title='Energy Costs Before vs After Rebalancing - Gas Consumer Archetypes (Bubble Size = Households)'
+    ).configure_axis(
+        labelColor='black',
+        titleColor='black'
+    ).configure_legend(
+        labelColor='black',
+        titleColor='black'
+    ).configure_title(
+        color='black'
+    )
+
+    return chart
+
+
+def create_archetype_reference_table(ofgem_archetypes_df: pd.DataFrame):
+    """
+    Create a reference table showing archetype codes with descriptions.
+    Non-gas consumers are greyed out to indicate they're not shown in the chart.
+    """
+    # Filter for core archetypes (rows 1-24)
+    ref_data = ofgem_archetypes_df.loc[1:24, [
+        'AnnualConsumptionProfile',
+        'ArchetypeNickname',
+        'ArchetypeHeatingFuel',
+        'ArchetypeSize',
+        'NetAnnualHouseholdIncome'
+    ]].copy()
+
+    # Format for display
+    ref_data = ref_data.rename(columns={
+        'AnnualConsumptionProfile': 'Code',
+        'ArchetypeNickname': 'Description',
+        'ArchetypeHeatingFuel': 'Heating',
+        'ArchetypeSize': 'Households',
+        'NetAnnualHouseholdIncome': 'Income (£)'
+    })
+
+    # Format numbers nicely
+    ref_data['Households'] = ref_data['Households'].apply(lambda x: f"{x:,.0f}" if pd.notna(x) else "")
+    ref_data['Income (£)'] = ref_data['Income (£)'].apply(lambda x: f"£{x:,.0f}" if pd.notna(x) else "")
+
+    # Add status column to indicate if shown in chart
+    ref_data['Chart Status'] = ref_data['Heating'].apply(
+        lambda x: '🔵 Shown' if x == 'Gas' else '⚫ Hidden'
+    )
+
+    return ref_data
+
+
+def style_archetype_reference_table(df: pd.DataFrame):
+    """
+    Apply styling to the archetype reference table, greying out non-gas consumers.
+    """
+    def highlight_non_gas(row):
+        if row['Heating'] != 'Gas':
+            return ['color: #888888; font-style: italic'] * len(row)
+        else:
+            return [''] * len(row)
+
+    return df.style.apply(highlight_non_gas, axis=1)

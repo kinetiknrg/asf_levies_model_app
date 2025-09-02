@@ -8,9 +8,9 @@ from asf_levies_model_app.utils.app_utils import (
     update_gas_tariff_policy_cost,
     instantiate_archetype_consumers,
     calculate_unit_cost_ratio,
-    get_tidy_summary,
-    tidy_to_pivot_summary,
-    make_archetype_bill_change_chart,
+    make_all_archetypes_xy_chart,
+    create_archetype_reference_table,
+    style_archetype_reference_table,
 )
 
 from asf_levies_model.summary import (
@@ -19,14 +19,24 @@ from asf_levies_model.summary import (
 )
 import asf_levies_model.levies as levies
 import asf_levies_model.getters.load_data as data
+import copy
+import traceback
+from datetime import datetime
+import numpy as np
 
 st.set_page_config(
     page_title="Nesta Levies Rebalancing Model", page_icon="🏠", layout="wide"
 )
 
-st.title("Levies Rebalancing App💡")
+st.title("Ofgem Levies Rebalancing & Heat Pump Analysis App💡")
 st.markdown(
-    "**from the [A Sustainable Future](https://www.nesta.org.uk/sustainable-future/) team at Nesta**"
+    """
+    **Based on original work by the [A Sustainable Future](https://www.nesta.org.uk/sustainable-future/) team at Nesta**
+
+    🔗 [Original NESTA Streamlit app](https://nesta-levies-model.streamlit.app/)
+
+    📚 [ASF Levies Model documentation](https://github.com/nesta-uk/asf-levies-model)
+    """
 )
 
 
@@ -37,7 +47,6 @@ def load_levies():
     levies = instantiate_levies(fileobject)
     fileobject.close()
     return levies
-
 
 levies = load_levies()
 
@@ -92,32 +101,40 @@ with st.sidebar:
     )
     st.success(f"**Selected:** {selected_display}")
 
-    if st.button(
+    def set_status_quo():
+        st.session_state.approach = "Current"
+
+    st.button(
         "⚖️ Status Quo",
         use_container_width=True,
         type="primary" if st.session_state.approach == "Current" else "secondary",
-    ):
-        st.session_state.approach = "Current"
-        st.rerun()
+        on_click=set_status_quo,
+        key="button_status_quo"
+    )
 
     st.markdown("---")
 
     st.subheader("Rebalancing ⚖️")
     st.caption("From electricity :zap: to gas :fire:")
+    def set_rebalance_all():
+        st.session_state.approach = "Rebalance all levies on electricity to gas"
+
     col1, col2 = st.columns(2)
     with col1:
-        if st.button(
+        st.button(
             "All levies",
             key="rebalance_all",
             use_container_width=True,
             type="primary"
             if st.session_state.approach == "Rebalance all levies on electricity to gas"
             else "secondary",
-        ):
-            st.session_state.approach = "Rebalance all levies on electricity to gas"
-            st.rerun()
+            on_click=set_rebalance_all
+        )
+    def set_rebalance_ro_fit():
+        st.session_state.approach = "Rebalance RO and FIT levies from electricity to gas"
+
     with col2:
-        if st.button(
+        st.button(
             "RO + FIT only",
             help="Renewables Obligation and Feed-in Tariff",
             key="rebalance_ro_fit",
@@ -126,17 +143,17 @@ with st.sidebar:
             if st.session_state.approach
             == "Rebalance RO and FIT levies from electricity to gas"
             else "secondary",
-        ):
-            st.session_state.approach = (
-                "Rebalance RO and FIT levies from electricity to gas"
-            )
-            st.rerun()
+            on_click=set_rebalance_ro_fit
+        )
 
     st.subheader("Taxation 👑")
     st.caption("From electricity :zap: to general taxation")
+    def set_taxation_all():
+        st.session_state.approach = "Remove all levies on electricity to taxation"
+
     col1, col2 = st.columns(2)
     with col1:
-        if st.button(
+        st.button(
             "All levies",
             key="taxation_all",
             use_container_width=True,
@@ -144,11 +161,13 @@ with st.sidebar:
             if st.session_state.approach
             == "Remove all levies on electricity to taxation"
             else "secondary",
-        ):
-            st.session_state.approach = "Remove all levies on electricity to taxation"
-            st.rerun()
+            on_click=set_taxation_all
+        )
+    def set_taxation_ro_fit():
+        st.session_state.approach = "Remove RO and FIT levies from electricity to taxation"
+
     with col2:
-        if st.button(
+        st.button(
             "RO + FIT only",
             help="Renewables Obligation and Feed-in Tariff",
             key="taxation_ro_fit",
@@ -157,21 +176,21 @@ with st.sidebar:
             if st.session_state.approach
             == "Remove RO and FIT levies from electricity to taxation"
             else "secondary",
-        ):
-            st.session_state.approach = (
-                "Remove RO and FIT levies from electricity to taxation"
-            )
-            st.rerun()
+            on_click=set_taxation_ro_fit
+        )
 
     st.markdown("---")
 
-    if st.button(
+    def set_create_own():
+        st.session_state.approach = "Create my own"
+
+    st.button(
         "✍️ Create my own",
         use_container_width=True,
         type="primary" if st.session_state.approach == "Create my own" else "secondary",
-    ):
-        st.session_state.approach = "Create my own"
-        st.rerun()
+        on_click=set_create_own,
+        key="button_create_own"
+    )
 
     st.markdown("---")
 
@@ -360,161 +379,224 @@ with st.sidebar:
                     ] = 1.0
 
     else:
+        # Create a deep copy of the cached levies to prevent mutation errors on re-runs
+        levies_copy = copy.deepcopy(levies)
         st.session_state.rebalancing_weights = get_approach_weights(
-            levies, st.session_state.approach
+            levies_copy, st.session_state.approach
         )
 
 
-# Rebalance levies based on chosen approach
-rebalanced_levies = levies.rebalance_levies(
-    st.session_state.rebalancing_weights,
-    scenario_name="Rebalanced",
-)
-
-
-# Instantiate baseline and rebalanced tariffs
-@st.cache_data
-def load_tariffs():
-    fileobject = data.download_annex_9(as_fileobject=True)
-    baseline_tariffs = instantiate_tariffs(
-        fileobject_annex_9=fileobject, payment_method="Other Payment"
-    )
-    rebalanced_tariffs = instantiate_tariffs(
-        fileobject_annex_9=fileobject, payment_method="Other Payment"
-    )
-    fileobject.close()
-    return baseline_tariffs, rebalanced_tariffs
-
-
-baseline_tariffs, rebalanced_tariffs = load_tariffs()
-
-baseline_electricity_tariff = update_electricity_tariff_policy_cost(
-    baseline_tariffs["electricity"], levies
-)
-baseline_gas_tariff = update_gas_tariff_policy_cost(baseline_tariffs["gas"], levies)
-rebalanced_electricity_tariff = update_electricity_tariff_policy_cost(
-    rebalanced_tariffs["electricity"], rebalanced_levies
-)
-rebalanced_gas_tariff = update_gas_tariff_policy_cost(
-    rebalanced_tariffs["gas"], rebalanced_levies
-)
-
-
-# Create a list of Consumers (average Ofgem archetypes only, n=24) for baseline and rebalanced scenario
-@st.cache_data
-def load_archetypes():
-    return data.ofgem_archetypes_data()
-
-
-ofgem_archetypes_df = load_archetypes()
-
-baseline_consumers = instantiate_archetype_consumers(
-    ofgem_archetypes_df, baseline_gas_tariff, baseline_electricity_tariff
-)
-rebalanced_consumers = instantiate_archetype_consumers(
-    ofgem_archetypes_df, rebalanced_gas_tariff, rebalanced_electricity_tariff
-)
-
-# Result: Unit cost ratio
-baseline_ratio = calculate_unit_cost_ratio(
-    baseline_electricity_tariff, baseline_gas_tariff
-)
-rebalanced_ratio = calculate_unit_cost_ratio(
-    rebalanced_electricity_tariff, rebalanced_gas_tariff
-)
-
-# Result: Cost to taxpayers
-cost_to_tax = sum(
-    st.session_state.rebalancing_weights[levy.short_name]["new_tax_weight"]
-    * levy.revenue
-    for levy in rebalanced_levies
-)
-
-# Result: Energy price cap (i.e. typical household bill)
-baseline_price_cap = baseline_electricity_tariff.calculate_total_consumption(
-    2.7, vat=True
-) + baseline_gas_tariff.calculate_total_consumption(11.5, vat=True)
-rebalanced_price_cap = rebalanced_electricity_tariff.calculate_total_consumption(
-    2.7, vat=True
-) + rebalanced_gas_tariff.calculate_total_consumption(11.5, vat=True)
-
-col1, col2, col3 = st.columns(3)
-
-with col2:
-    st.warning(
-        f"**Electricity-to-gas ratio: {rebalanced_ratio:.2f}** *(Current: {baseline_ratio:.2f})*"
-    )
-with col3:
-    st.error(
-        f"**Additional cost to taxpayers: £{cost_to_tax/1_000_000_000:.2f} billion per year**"
-    )
-    start = baseline_electricity_tariff.price_cap_period.left
-    end = baseline_electricity_tariff.price_cap_period.right
-    st.markdown(
-        f"*Using price cap period: {start.day} {start.strftime('%B')} to {end.day} {end.strftime('%B')} {end.year}*"
+try:
+    # Rebalance levies based on chosen approach
+    rebalanced_levies = levies.rebalance_levies(
+        st.session_state.rebalancing_weights,
+        scenario_name="Rebalanced",
     )
 
-
-# Result: Distribution impacts dot chart
-baseline_summary_table = tidy_to_pivot_summary(
-    get_tidy_summary(baseline_consumers, "Baseline")
-)
-rebalanced_summary_table = tidy_to_pivot_summary(
-    get_tidy_summary(rebalanced_consumers, "Rebalanced")
-)
-# Add bill change column
-rebalanced_summary_table["bill_change"] = (
-    rebalanced_summary_table["combined_fuel_bill"]
-    - baseline_summary_table["combined_fuel_bill"]
-)
-
-# Add archetype sizes
-
-archetype_sizes = data.ofgem_archetypes_data()[
-    ["AnnualConsumptionProfile", "ArchetypeSize"]
-]
-archetype_sizes = archetype_sizes.rename(
-    columns={
-        "AnnualConsumptionProfile": "Name",
-    }
-)
-rebalanced_summary_table = rebalanced_summary_table.merge(
-    archetype_sizes, on="Name", how="left"
-)
-
-# Fill any missing values in ArchetypeSize with 0 to prevent rendering errors
-rebalanced_summary_table["ArchetypeSize"] = rebalanced_summary_table[
-    "ArchetypeSize"
-].fillna(0)
-
-st.markdown(
-    f"<p style='color:black; font-size: 20px;'><b>Distributional impacts: Effect on energy bills</b></p>",
-    unsafe_allow_html=True,
-)
-col1, col2 = st.columns(2)
-with col2:
-    st.info(
-        f"**Typical household bill: £{rebalanced_price_cap:,.2f}** *(Current: £{baseline_price_cap:,.2f})*"
-    )
-
-chart = make_archetype_bill_change_chart(rebalanced_summary_table, chart_width=1000)
-st.altair_chart(chart)
-
-# Option to view results table
-if st.button("View distributional impacts results table"):
-    # Show link to distributional effects summary dataframe for download
+    # Instantiate baseline and rebalanced tariffs
     @st.cache_data
-    def convert_df(df):
-        return df.to_csv(index=False).encode("utf-8")
+    def load_tariffs():
+        fileobject = data.download_annex_9(as_fileobject=True)
+        baseline_tariffs = instantiate_tariffs(
+            fileobject_annex_9=fileobject, payment_method="Other Payment"
+        )
+        rebalanced_tariffs = instantiate_tariffs(
+            fileobject_annex_9=fileobject, payment_method="Other Payment"
+        )
+        fileobject.close()
+        return baseline_tariffs, rebalanced_tariffs
 
-    csv = convert_df(rebalanced_summary_table)
+    baseline_tariffs, rebalanced_tariffs = load_tariffs()
 
-    st.download_button(
-        "Download table",
-        csv,
-        "rebalanced_scenario_distributional_effect.csv",
-        "text/csv",
-        key="download-csv",
+    baseline_electricity_tariff = update_electricity_tariff_policy_cost(
+        baseline_tariffs["electricity"], levies
+    )
+    baseline_gas_tariff = update_gas_tariff_policy_cost(baseline_tariffs["gas"], levies)
+    rebalanced_electricity_tariff = update_electricity_tariff_policy_cost(
+        rebalanced_tariffs["electricity"], rebalanced_levies
+    )
+    rebalanced_gas_tariff = update_gas_tariff_policy_cost(
+        rebalanced_tariffs["gas"], rebalanced_levies
     )
 
-    st.write(rebalanced_summary_table)
+    # Create a list of Consumers (average Ofgem archetypes only, n=24) for baseline and rebalanced scenario
+    @st.cache_data
+    def load_archetypes():
+        return data.ofgem_archetypes_data()
+
+    ofgem_archetypes_df = load_archetypes()
+
+    baseline_consumers = instantiate_archetype_consumers(
+        ofgem_archetypes_df, baseline_gas_tariff, baseline_electricity_tariff
+    )
+    rebalanced_consumers = instantiate_archetype_consumers(
+        ofgem_archetypes_df, rebalanced_gas_tariff, rebalanced_electricity_tariff
+    )
+
+    # Result: Unit cost ratio
+    baseline_ratio = calculate_unit_cost_ratio(
+        baseline_electricity_tariff, baseline_gas_tariff
+    )
+    rebalanced_ratio = calculate_unit_cost_ratio(
+        rebalanced_electricity_tariff, rebalanced_gas_tariff
+    )
+
+    # Result: Cost to taxpayers
+    cost_to_tax = sum(
+        st.session_state.rebalancing_weights[levy.short_name]["new_tax_weight"]
+        * levy.revenue
+        for levy in rebalanced_levies
+    )
+
+    # Result: Energy price cap (i.e. typical household bill)
+    baseline_price_cap = baseline_electricity_tariff.calculate_total_consumption(
+        2.7, vat=True
+    ) + baseline_gas_tariff.calculate_total_consumption(11.5, vat=True)
+    rebalanced_price_cap = rebalanced_electricity_tariff.calculate_total_consumption(
+        2.7, vat=True
+    ) + rebalanced_gas_tariff.calculate_total_consumption(11.5, vat=True)
+
+    col1, col2, col3 = st.columns(3)
+
+    with col2:
+        st.warning(
+            f"**Electricity-to-gas ratio: {rebalanced_ratio:.2f}** *(Current: {baseline_ratio:.2f})*"
+        )
+    with col3:
+        st.error(
+            f"**Additional cost to taxpayers: £{cost_to_tax/1_000_000_000:.2f} billion per year**"
+        )
+        start = baseline_electricity_tariff.price_cap_period.left
+        end = baseline_electricity_tariff.price_cap_period.right
+        st.markdown(
+            f"*Using price cap period: {start.day} {start.strftime('%B')} to {end.day} {end.strftime('%B')} {end.year}*"
+        )
+
+
+    st.markdown("---")
+
+    st.markdown(
+        f"<p style='color:black; font-size: 20px;'><b>All Consumer Archetypes Analysis</b></p>",
+        unsafe_allow_html=True,
+    )
+
+    # Calculate baseline and rebalanced tariff rates (inc VAT) for reference
+    baseline_elec_total_1_mwh_inc_vat = baseline_electricity_tariff.calculate_total_consumption(1, vat=True)
+    baseline_elec_standing_inc_vat = baseline_electricity_tariff.calculate_nil_consumption() * 1.05
+    baseline_elec_unit_price_inc_vat = ((baseline_elec_total_1_mwh_inc_vat - baseline_elec_standing_inc_vat) / 1000) * 100
+    baseline_elec_standing_charge_inc_vat = (baseline_elec_standing_inc_vat / 365) * 100
+
+    baseline_gas_total_1_mwh_inc_vat = baseline_gas_tariff.calculate_total_consumption(1, vat=True)
+    baseline_gas_standing_inc_vat = baseline_gas_tariff.calculate_nil_consumption() * 1.05
+    baseline_gas_unit_price_inc_vat = ((baseline_gas_total_1_mwh_inc_vat - baseline_gas_standing_inc_vat) / 1000) * 100
+    baseline_gas_standing_charge_inc_vat = (baseline_gas_standing_inc_vat / 365) * 100
+
+    rebalanced_elec_total_1_mwh_inc_vat = rebalanced_electricity_tariff.calculate_total_consumption(1, vat=True)
+    rebalanced_elec_standing_inc_vat = rebalanced_electricity_tariff.calculate_nil_consumption() * 1.05
+    rebalanced_elec_unit_price_inc_vat = ((rebalanced_elec_total_1_mwh_inc_vat - rebalanced_elec_standing_inc_vat) / 1000) * 100
+    rebalanced_elec_standing_charge_inc_vat = (rebalanced_elec_standing_inc_vat / 365) * 100
+
+    rebalanced_gas_total_1_mwh_inc_vat = rebalanced_gas_tariff.calculate_total_consumption(1, vat=True)
+    rebalanced_gas_standing_inc_vat = rebalanced_gas_tariff.calculate_nil_consumption() * 1.05
+    rebalanced_gas_unit_price_inc_vat = ((rebalanced_gas_total_1_mwh_inc_vat - rebalanced_gas_standing_inc_vat) / 1000) * 100
+    rebalanced_gas_standing_charge_inc_vat = (rebalanced_gas_standing_inc_vat / 365) * 100
+
+    # Tariff comparison section
+    st.markdown("<h4>📊 Tariff Rate Comparison: Baseline vs Rebalanced</h4>", unsafe_allow_html=True)
+    st.info("ℹ️ **All tariff rates shown include VAT at 5%** - matching published Ofgem price cap rates")
+
+    col1, col2, col3, col4 = st.columns(4)
+
+    with col1:
+        st.markdown("<h6>Baseline Electricity</h6>", unsafe_allow_html=True)
+        st.metric(
+            label="Unit Rate (inc VAT)",
+            value=f"{baseline_elec_unit_price_inc_vat:.2f} p/kWh"
+        )
+        st.metric(
+            label="Standing Charge (inc VAT)",
+            value=f"{baseline_elec_standing_charge_inc_vat:.2f} p/day"
+        )
+
+    with col2:
+        st.markdown("<h6>Rebalanced Electricity</h6>", unsafe_allow_html=True)
+        unit_rate_change = rebalanced_elec_unit_price_inc_vat - baseline_elec_unit_price_inc_vat
+        standing_change = rebalanced_elec_standing_charge_inc_vat - baseline_elec_standing_charge_inc_vat
+        st.metric(
+            label="Unit Rate (inc VAT)",
+            value=f"{rebalanced_elec_unit_price_inc_vat:.2f} p/kWh",
+            delta=f"{unit_rate_change:+.2f} p/kWh"
+        )
+        st.metric(
+            label="Standing Charge (inc VAT)",
+            value=f"{rebalanced_elec_standing_charge_inc_vat:.2f} p/day",
+            delta=f"{standing_change:+.2f} p/day"
+        )
+
+    with col3:
+        st.markdown("<h6>Baseline Gas</h6>", unsafe_allow_html=True)
+        st.metric(
+            label="Unit Rate (inc VAT)",
+            value=f"{baseline_gas_unit_price_inc_vat:.2f} p/kWh"
+        )
+        st.metric(
+            label="Standing Charge (inc VAT)",
+            value=f"{baseline_gas_standing_charge_inc_vat:.2f} p/day"
+        )
+
+    with col4:
+        st.markdown("<h6>Rebalanced Gas</h6>", unsafe_allow_html=True)
+        gas_unit_rate_change = rebalanced_gas_unit_price_inc_vat - baseline_gas_unit_price_inc_vat
+        gas_standing_change = rebalanced_gas_standing_charge_inc_vat - baseline_gas_standing_charge_inc_vat
+        st.metric(
+            label="Unit Rate (inc VAT)",
+            value=f"{rebalanced_gas_unit_price_inc_vat:.2f} p/kWh",
+            delta=f"{gas_unit_rate_change:+.2f} p/kWh"
+        )
+        st.metric(
+            label="Standing Charge (inc VAT)",
+            value=f"{rebalanced_gas_standing_charge_inc_vat:.2f} p/day",
+            delta=f"{gas_standing_change:+.2f} p/day"
+        )
+
+    st.markdown("---")
+
+    # All archetypes XY chart with reference table
+    st.markdown("<h4>🏠 Energy Cost Analysis: Gas Consumer Archetypes</h4>", unsafe_allow_html=True)
+    st.caption("Gas cost (x-axis) vs Electricity cost (y-axis) for gas-heated consumer archetypes only. **All costs include VAT at 5%.** Bubble size represents number of households. Non-gas archetypes are hidden from chart but shown greyed out in reference table below.")
+
+    # Full-width chart
+    xy_chart = make_all_archetypes_xy_chart(
+        baseline_consumers=baseline_consumers,
+        rebalanced_consumers=rebalanced_consumers,
+        ofgem_archetypes_df=ofgem_archetypes_df,
+        chart_width=900
+    )
+
+    if xy_chart:
+        st.altair_chart(xy_chart, use_container_width=True)
+    else:
+        st.error("Unable to create chart")
+
+    # Archetype reference table below chart
+    st.markdown("---")
+    st.markdown("<h5>📋 Archetype Reference</h5>", unsafe_allow_html=True)
+    st.caption("🔵 = Shown in chart | ⚫ = Hidden (non-gas consumers)")
+
+    ref_table = create_archetype_reference_table(ofgem_archetypes_df)
+    styled_table = style_archetype_reference_table(ref_table)
+
+    # Display styled dataframe - full width below chart
+    st.dataframe(
+        styled_table,
+        use_container_width=True,
+        height=400,
+        hide_index=True
+    )
+
+except Exception as e:
+    st.error(f"🚨 **Error**: {type(e).__name__}")
+    st.error(f"**Message**: {str(e)}")
+
+    with st.expander("🔍 **Error Details** (Click to expand)"):
+        st.text(traceback.format_exc())
