@@ -10,7 +10,6 @@ from asf_levies_model_app.utils.app_utils import (
     calculate_unit_cost_ratio,
     make_all_archetypes_xy_chart,
     create_archetype_reference_table,
-    style_archetype_reference_table,
     get_data_sources_info,
     validate_app_rates_against_ofgem,
     analyze_heat_pump_economics,
@@ -489,7 +488,7 @@ try:
 
     # Filter to primary archetypes only (first 24 rows) to exclude distributional data
     primary_archetypes_df = ofgem_archetypes_df.iloc[:24]
-    
+
     baseline_consumers = instantiate_archetype_consumers(
         primary_archetypes_df, baseline_gas_tariff, baseline_electricity_tariff
     )
@@ -745,7 +744,8 @@ try:
     st.caption("🔵 = Shown in chart | ⚫ = Hidden (non-gas consumers)")
 
     ref_table = create_archetype_reference_table(ofgem_archetypes_df)
-    styled_table = style_archetype_reference_table(ref_table)
+    # Apply basic styling for the reference table
+    styled_table = ref_table.style.set_properties(**{'text-align': 'left'})
 
     # Display styled dataframe - full width below chart
     st.dataframe(
