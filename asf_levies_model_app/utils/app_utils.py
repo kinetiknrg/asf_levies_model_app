@@ -488,6 +488,10 @@ def make_all_archetypes_xy_chart(baseline_consumers: List, rebalanced_consumers:
     chart_data = []
 
     for baseline_consumer, rebalanced_consumer in zip(baseline_consumers, rebalanced_consumers):
+        # FILTER: Only include gas-heated archetypes in gas consumer chart
+        if baseline_consumer.main_heating_fuel != "Gas":
+            continue
+
         # Get archetype description from the dataframe
         archetype_info = ofgem_archetypes_df[
             ofgem_archetypes_df["AnnualConsumptionProfile"] == baseline_consumer.name
@@ -618,8 +622,8 @@ def create_archetype_reference_table(ofgem_archetypes_df: pd.DataFrame):
     """
     Create a reference table showing archetype codes with descriptions.
     """
-    # Filter for core archetypes (rows 1-24)
-    ref_data = ofgem_archetypes_df.loc[1:24, [
+    # Filter for primary archetypes (first 24 rows, indices 0-23)
+    ref_data = ofgem_archetypes_df.iloc[0:24, :][[
         'AnnualConsumptionProfile',
         'ArchetypeNickname',
         'ArchetypeHeatingFuel',
@@ -640,4 +644,256 @@ def create_archetype_reference_table(ofgem_archetypes_df: pd.DataFrame):
     ref_data['Households'] = ref_data['Households'].apply(lambda x: f"{x:,.0f}" if pd.notna(x) else "")
     ref_data['Income (£)'] = ref_data['Income (£)'].apply(lambda x: f"£{x:,.0f}" if pd.notna(x) else "")
 
+    # Add indicator for chart inclusion (gas heating only)
+    ref_data['Chart'] = ref_data['Heating'].apply(lambda x: '🔵 Shown in chart' if x == 'Gas' else '⚫ Hidden (non-gas)')
+
     return ref_data
+
+
+def get_data_sources_info():
+    """
+    Extract data source information from config and live data for transparency.
+    Uses the asf_levies_model package config system.
+    """
+    from datetime import datetime
+    import asf_levies_model
+
+    try:
+        # Use the package's built-in config system
+        config = asf_levies_model.config
+
+        if not config:
+            return {
+                'current_date': datetime.now().strftime('%d/%m/%Y %H:%M'),
+                'config_updated': 'Config not loaded',
+                'days_since_update': 'Error',
+                'ofgem_annex_4': 'Config not accessible',
+                'ofgem_annex_9': 'Config not accessible',
+                'validation_rates': {},
+                'error': 'Package config not available'
+            }
+
+        # Get config file content to read update date from first line
+        # Use the package's defined paths
+        config_path = asf_levies_model.PROJECT_DIR / "asf_levies_model" / "config" / "base.yaml"
+        with open(config_path, 'r') as f:
+            config_content = f.read()
+
+        # Extract update date from first line of config file
+        first_line = config_content.split('\n')[0]
+        if 'updated' in first_line:
+            config_update_date = first_line.split('updated ')[1]
+            # Calculate days since update
+            try:
+                config_date = datetime.strptime(config_update_date, '%d/%m/%Y %H:%M')
+                days_since_update = (datetime.now() - config_date).days
+            except:
+                days_since_update = "Unknown"
+        else:
+            config_update_date = "Unknown"
+            days_since_update = "Unknown"
+
+        return {
+            'current_date': datetime.now().strftime('%d/%m/%Y %H:%M'),
+            'config_updated': config_update_date,
+            'days_since_update': days_since_update,
+            'ofgem_annex_4': config['data_sources']['ofgem_annex_4'],
+            'ofgem_annex_9': config['data_sources']['ofgem_annex_9'],
+            'validation_rates': config.get('validation_rates', {})
+        }
+    except Exception as e:
+        return {
+            'current_date': datetime.now().strftime('%d/%m/%Y %H:%M'),
+            'config_updated': 'Error reading config',
+            'days_since_update': 'Error',
+            'ofgem_annex_4': 'Error loading',
+            'ofgem_annex_9': 'Error loading',
+            'validation_rates': {},
+            'error': str(e)
+        }
+
+
+def validate_app_rates_against_ofgem(baseline_electricity_tariff, baseline_gas_tariff, validation_rates):
+    """
+    Compare app-calculated rates with official Ofgem published rates from config.
+    """
+
+    # Instead of current calendar quarter, check what validation data is available
+    # and use the most appropriate one for the loaded data period
+    if not validation_rates:
+        return None, "No validation rates configured in base.yaml"
+
+    # For now, use the first available validation data (could be enhanced to match periods)
+    available_periods = list(validation_rates.keys())
+    if not available_periods:
+        return None, "No validation periods configured"
+
+    validation_key = available_periods[0]  # Use first available (e.g., "2025-Q4")
+    validation_data = validation_rates[validation_key]
+
+    # Calculate app rates (VAT included)
+    app_elec_total_1_mwh_inc_vat = baseline_electricity_tariff.calculate_total_consumption(1, vat=True)
+    app_elec_standing_inc_vat = baseline_electricity_tariff.calculate_nil_consumption() * 1.05
+    app_elec_unit_rate = ((app_elec_total_1_mwh_inc_vat - app_elec_standing_inc_vat) / 1000) * 100
+    app_elec_standing_daily = (app_elec_standing_inc_vat / 365) * 100
+
+    app_gas_total_1_mwh_inc_vat = baseline_gas_tariff.calculate_total_consumption(1, vat=True)
+    app_gas_standing_inc_vat = baseline_gas_tariff.calculate_nil_consumption() * 1.05
+    app_gas_unit_rate = ((app_gas_total_1_mwh_inc_vat - app_gas_standing_inc_vat) / 1000) * 100
+    app_gas_standing_daily = (app_gas_standing_inc_vat / 365) * 100
+
+    # Get official rates from config
+    ofgem_elec_standing = validation_data['electricity_standing_pence_per_day']
+    ofgem_elec_unit = validation_data['electricity_unit_pence_per_kwh']
+    ofgem_gas_standing = validation_data['gas_standing_pence_per_day']
+    ofgem_gas_unit = validation_data['gas_unit_pence_per_kwh']
+
+    # Round values for comparison (same as display)
+    app_elec_standing_rounded = round(app_elec_standing_daily, 2)
+    app_elec_unit_rounded = round(app_elec_unit_rate, 2)
+    app_gas_standing_rounded = round(app_gas_standing_daily, 2)
+    app_gas_unit_rounded = round(app_gas_unit_rate, 2)
+
+    # Calculate percentage differences on rounded values
+    elec_standing_pct = abs((app_elec_standing_rounded - ofgem_elec_standing) / ofgem_elec_standing * 100)
+    elec_unit_pct = abs((app_elec_unit_rounded - ofgem_elec_unit) / ofgem_elec_unit * 100)
+    gas_standing_pct = abs((app_gas_standing_rounded - ofgem_gas_standing) / ofgem_gas_standing * 100)
+    gas_unit_pct = abs((app_gas_unit_rounded - ofgem_gas_unit) / ofgem_gas_unit * 100)
+
+    # RAG status function
+    def get_rag_status(pct_diff):
+        if pct_diff < 0.25:
+            return "🟢 Excellent"
+        elif pct_diff < 1.0:
+            return "🟡 Acceptable"
+        else:
+            return "🔴 Issues"
+
+    # Create comparison table with RAG status
+    comparison_data = pd.DataFrame([
+        {
+            'Fuel': 'Electricity',
+            'Rate Type': 'Standing Charge (p/day)',
+            'Official Ofgem': f"{ofgem_elec_standing:.2f}",
+            'App Calculated': f"{app_elec_standing_rounded:.2f}",
+            'Difference (p)': f"{app_elec_standing_rounded - ofgem_elec_standing:+.2f}",
+            'Difference (%)': f"{elec_standing_pct:+.2f}%",
+            'Status': get_rag_status(elec_standing_pct)
+        },
+        {
+            'Fuel': 'Electricity',
+            'Rate Type': 'Unit Rate (p/kWh)',
+            'Official Ofgem': f"{ofgem_elec_unit:.2f}",
+            'App Calculated': f"{app_elec_unit_rounded:.2f}",
+            'Difference (p)': f"{app_elec_unit_rounded - ofgem_elec_unit:+.2f}",
+            'Difference (%)': f"{elec_unit_pct:+.2f}%",
+            'Status': get_rag_status(elec_unit_pct)
+        },
+        {
+            'Fuel': 'Gas',
+            'Rate Type': 'Standing Charge (p/day)',
+            'Official Ofgem': f"{ofgem_gas_standing:.2f}",
+            'App Calculated': f"{app_gas_standing_rounded:.2f}",
+            'Difference (p)': f"{app_gas_standing_rounded - ofgem_gas_standing:+.2f}",
+            'Difference (%)': f"{gas_standing_pct:+.2f}%",
+            'Status': get_rag_status(gas_standing_pct)
+        },
+        {
+            'Fuel': 'Gas',
+            'Rate Type': 'Unit Rate (p/kWh)',
+            'Official Ofgem': f"{ofgem_gas_unit:.2f}",
+            'App Calculated': f"{app_gas_unit_rounded:.2f}",
+            'Difference (p)': f"{app_gas_unit_rounded - ofgem_gas_unit:+.2f}",
+            'Difference (%)': f"{gas_unit_pct:+.2f}%",
+            'Status': get_rag_status(gas_unit_pct)
+        }
+    ])
+
+    # Overall validation status
+    max_pct_diff = max(elec_standing_pct, elec_unit_pct, gas_standing_pct, gas_unit_pct)
+
+    validation_status = {
+        'comparison_table': comparison_data,
+        'max_percentage_diff': max_pct_diff,
+        'validation_data': validation_data
+    }
+
+    return validation_status, None
+
+
+def analyze_heat_pump_economics(baseline_consumers, rebalanced_consumers, baseline_elec_tariff, rebalanced_elec_tariff, baseline_gas_tariff, rebalanced_gas_tariff):
+    """
+    Analyze heat pump vs gas boiler economics for gas consumer archetypes.
+    Based on analysis pattern from ro_fit_rate_breakdown.py.
+    """
+
+    # Heat pump assumptions
+    BOILER_EFFICIENCY = 0.8  # 80% efficient gas boiler
+    HEAT_PUMP_SPF = 3.0      # Seasonal Performance Factor
+
+    # Calculate unit cost ratios
+    baseline_elec_rate = baseline_elec_tariff.calculate_variable_consumption(1) * 1.05 / 10  # p/kWh inc VAT
+    baseline_gas_rate = baseline_gas_tariff.calculate_variable_consumption(1) * 1.05 / 10
+    rebalanced_elec_rate = rebalanced_elec_tariff.calculate_variable_consumption(1) * 1.05 / 10
+    rebalanced_gas_rate = rebalanced_gas_tariff.calculate_variable_consumption(1) * 1.05 / 10
+
+    baseline_ratio = baseline_elec_rate / baseline_gas_rate
+    rebalanced_ratio = rebalanced_elec_rate / rebalanced_gas_rate
+
+    # Filter for gas consumers only
+    baseline_gas_consumers = [c for c in baseline_consumers if c.main_heating_fuel == 'Gas']
+    rebalanced_gas_consumers = [c for c in rebalanced_consumers if c.main_heating_fuel == 'Gas']
+
+    analysis_data = []
+
+    for baseline_consumer, rebalanced_consumer in zip(baseline_gas_consumers, rebalanced_gas_consumers):
+        # Heat pump electricity demand calculation
+        gas_consumption = baseline_consumer.gas_consumption
+        hp_elec_demand = gas_consumption * BOILER_EFFICIENCY / HEAT_PUMP_SPF
+
+        # Baseline scenario costs
+        baseline_boiler_cost = baseline_consumer.gas_bill
+        baseline_hp_cost = baseline_elec_tariff.calculate_total_consumption(hp_elec_demand, vat=True)
+        baseline_saving = baseline_boiler_cost - baseline_hp_cost
+
+        # Rebalanced scenario costs
+        rebalanced_boiler_cost = rebalanced_consumer.gas_bill
+        rebalanced_hp_cost = rebalanced_elec_tariff.calculate_total_consumption(hp_elec_demand, vat=True)
+        rebalanced_saving = rebalanced_boiler_cost - rebalanced_hp_cost
+
+        # Improvement from rebalancing
+        improvement = rebalanced_saving - baseline_saving
+
+        analysis_data.append({
+            'archetype': baseline_consumer.name,
+            'gas_consumption_mwh': gas_consumption,
+            'hp_elec_demand_mwh': hp_elec_demand,
+            'baseline_boiler_cost': baseline_boiler_cost,
+            'baseline_hp_cost': baseline_hp_cost,
+            'baseline_saving': baseline_saving,
+            'rebalanced_boiler_cost': rebalanced_boiler_cost,
+            'rebalanced_hp_cost': rebalanced_hp_cost,
+            'rebalanced_saving': rebalanced_saving,
+            'improvement': improvement,
+            'baseline_competitive': baseline_saving > 0,
+            'rebalanced_competitive': rebalanced_saving > 0
+        })
+
+    analysis_df = pd.DataFrame(analysis_data)
+
+    # Summary statistics
+    baseline_winners = sum(analysis_df['baseline_competitive'])
+    rebalanced_winners = sum(analysis_df['rebalanced_competitive'])
+    avg_improvement = analysis_df['improvement'].mean()
+
+    return {
+        'analysis_data': analysis_df,
+        'baseline_ratio': baseline_ratio,
+        'rebalanced_ratio': rebalanced_ratio,
+        'heat_pump_spf': HEAT_PUMP_SPF,
+        'boiler_efficiency': BOILER_EFFICIENCY,
+        'baseline_winners': baseline_winners,
+        'rebalanced_winners': rebalanced_winners,
+        'avg_improvement': avg_improvement,
+        'total_gas_archetypes': len(baseline_gas_consumers)
+    }

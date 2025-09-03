@@ -1,0 +1,12 @@
+[33mcommit 390702cf898c26bafb9ad51ca4fe54476de14bbf[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mdev[m[33m)[m
+Author: kinetiknrg <richard@kinetik-nrg.com>
+Date:   Wed Sep 3 00:35:02 2025 +0100
+
+    Fix IndexError: correct archetype indexing after dataframe filtering
+    
+    - Change range(1, 25) to range(0, 24) to match 0-based pandas indexing
+    - Fixes 'single positional indexer is out-of-bounds' error
+    - Aligns with filtered primary archetypes dataframe (24 rows, indices 0-23)
+
+asf_levies_model_app/run_rebalancing_scenario.py
+asf_levies_model_app/utils/app_utils.py
