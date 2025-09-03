@@ -385,12 +385,11 @@ with st.sidebar:
                     ] = 1.0
 
     else:
-        # Update session state approach from radio selection
-        st.session_state.approach = approach
+        # st.radio automatically updates st.session_state.approach via key="approach"
         # Create a deep copy of the cached levies to prevent mutation errors on re-runs
         levies_copy = copy.deepcopy(levies)
         st.session_state.rebalancing_weights = get_approach_weights(
-            levies_copy, approach
+            levies_copy, st.session_state.approach
         )
 
 
