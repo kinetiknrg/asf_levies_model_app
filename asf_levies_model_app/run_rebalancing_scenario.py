@@ -149,107 +149,58 @@ with st.sidebar:
         "**Test a levy reform scenario** by adjusting the settings below. *Note: You can hide or adjust the width of this sidebar.*"
     )
 
+    # Enhanced UIX: Display current selection with visual feedback
     internal_to_display_map = {
-        "Current": "Status Quo",
+        "Current": "Status Quo ⚖️",
         "Rebalance all levies on electricity to gas": "Rebalancing ⚖️ all levies to gas",
         "Rebalance RO and FIT levies from electricity to gas": "Rebalancing ⚖️ RO+FIT levies to gas",
         "Remove all levies on electricity to taxation": "Taxation 👑 all levies to taxation",
         "Remove RO and FIT levies from electricity to taxation": "Taxation 👑 RO+FIT levies to taxation",
-        "Create my own": "Create my own",
+        "Create my own": "Create my own ✍️",
     }
     selected_display = internal_to_display_map.get(
         st.session_state.approach, st.session_state.approach
     )
     st.success(f"**Selected:** {selected_display}")
 
-    def set_status_quo():
-        st.session_state.approach = "Current"
+    st.markdown("---")
 
-    st.button(
-        "⚖️ Status Quo",
-        type="primary" if st.session_state.approach == "Current" else "secondary",
-        on_click=set_status_quo,
-        key="button_status_quo"
+    # Reliable approach selection using st.radio (original pattern)
+    approach = st.radio(
+        "**🎯 Select a preset approach or create your own:**",
+        [
+            "Current",
+            "Rebalance all levies on electricity to gas",
+            "Rebalance RO and FIT levies from electricity to gas",
+            "Remove all levies on electricity to taxation",
+            "Remove RO and FIT levies from electricity to taxation",
+            "Create my own",
+        ],
+        index=[
+            "Current",
+            "Rebalance all levies on electricity to gas",
+            "Rebalance RO and FIT levies from electricity to gas",
+            "Remove all levies on electricity to taxation",
+            "Remove RO and FIT levies from electricity to taxation",
+            "Create my own",
+        ].index(st.session_state.approach),
+        key="approach",
+        help="Choose how to redistribute policy levies between electricity and gas bills"
     )
 
-    st.markdown("---")
-
-    st.subheader("Rebalancing ⚖️")
-    st.caption("From electricity :zap: to gas :fire:")
-    def set_rebalance_all():
-        st.session_state.approach = "Rebalance all levies on electricity to gas"
-
-    col1, col2 = st.columns(2)
-    with col1:
-        st.button(
-            "All levies",
-            key="rebalance_all",
-            type="primary"
-            if st.session_state.approach == "Rebalance all levies on electricity to gas"
-            else "secondary",
-            on_click=set_rebalance_all
-        )
-    def set_rebalance_ro_fit():
-        st.session_state.approach = "Rebalance RO and FIT levies from electricity to gas"
-
-    with col2:
-        st.button(
-            "RO + FIT only",
-            help="Renewables Obligation and Feed-in Tariff",
-            key="rebalance_ro_fit",
-            type="primary"
-            if st.session_state.approach
-            == "Rebalance RO and FIT levies from electricity to gas"
-            else "secondary",
-            on_click=set_rebalance_ro_fit
-        )
-
-    st.subheader("Taxation 👑")
-    st.caption("From electricity :zap: to general taxation")
-    def set_taxation_all():
-        st.session_state.approach = "Remove all levies on electricity to taxation"
-
-    col1, col2 = st.columns(2)
-    with col1:
-        st.button(
-            "All levies",
-            key="taxation_all",
-            type="primary"
-            if st.session_state.approach
-            == "Remove all levies on electricity to taxation"
-            else "secondary",
-            on_click=set_taxation_all
-        )
-    def set_taxation_ro_fit():
-        st.session_state.approach = "Remove RO and FIT levies from electricity to taxation"
-
-    with col2:
-        st.button(
-            "RO + FIT only",
-            help="Renewables Obligation and Feed-in Tariff",
-            key="taxation_ro_fit",
-            type="primary"
-            if st.session_state.approach
-            == "Remove RO and FIT levies from electricity to taxation"
-            else "secondary",
-            on_click=set_taxation_ro_fit
-        )
+    # Enhanced UIX: Visual categorization with explanatory text
+    if approach in ["Rebalance all levies on electricity to gas", "Rebalance RO and FIT levies from electricity to gas"]:
+        st.info("⚖️ **Rebalancing**: Moving levies from electricity ⚡ to gas 🔥 bills")
+    elif approach in ["Remove all levies on electricity to taxation", "Remove RO and FIT levies from electricity to taxation"]:
+        st.info("👑 **Taxation**: Moving levies from electricity ⚡ to general taxation")
+    elif approach == "Current":
+        st.info("📊 **Status Quo**: Current levy distribution maintained")
+    elif approach == "Create my own":
+        st.info("✍️ **Custom**: Design your own rebalancing scenario")
 
     st.markdown("---")
 
-    def set_create_own():
-        st.session_state.approach = "Create my own"
-
-    st.button(
-        "✍️ Create my own",
-        type="primary" if st.session_state.approach == "Create my own" else "secondary",
-        on_click=set_create_own,
-        key="button_create_own"
-    )
-
-    st.markdown("---")
-
-    if st.session_state.approach == "Create my own":
+    if approach == "Create my own":
         st.session_state.rebalancing_weights = create_scenario_weights_dict(levies)
 
         for levy in levies:
@@ -434,21 +385,16 @@ with st.sidebar:
                     ] = 1.0
 
     else:
+        # Update session state approach from radio selection
+        st.session_state.approach = approach
         # Create a deep copy of the cached levies to prevent mutation errors on re-runs
         levies_copy = copy.deepcopy(levies)
         st.session_state.rebalancing_weights = get_approach_weights(
-            levies_copy, st.session_state.approach
+            levies_copy, approach
         )
 
 
 try:
-    # Ensure rebalancing weights are set for current approach
-    if not st.session_state.rebalancing_weights and st.session_state.approach != "Create my own":
-        levies_copy = copy.deepcopy(levies)
-        st.session_state.rebalancing_weights = get_approach_weights(
-            levies_copy, st.session_state.approach
-        )
-
     # Rebalance levies based on chosen approach
     rebalanced_levies = levies.rebalance_levies(
         st.session_state.rebalancing_weights,
