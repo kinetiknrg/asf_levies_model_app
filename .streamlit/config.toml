@@ -1,0 +1,13 @@
+[server]
+# Reduce file watching to prevent inotify limit exceeded in production
+fileWatcherType = "none"
+runOnSave = false
+
+[client]
+# Optimize for production deployment
+showErrorDetails = false
+showWarningOnDirectExecution = false
+
+[runner]
+# Prevent file watching issues
+fastReruns = true
