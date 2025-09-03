@@ -167,7 +167,6 @@ with st.sidebar:
 
     st.button(
         "⚖️ Status Quo",
-        width='stretch',
         type="primary" if st.session_state.approach == "Current" else "secondary",
         on_click=set_status_quo,
         key="button_status_quo"
@@ -185,7 +184,6 @@ with st.sidebar:
         st.button(
             "All levies",
             key="rebalance_all",
-            width='stretch',
             type="primary"
             if st.session_state.approach == "Rebalance all levies on electricity to gas"
             else "secondary",
@@ -199,7 +197,6 @@ with st.sidebar:
             "RO + FIT only",
             help="Renewables Obligation and Feed-in Tariff",
             key="rebalance_ro_fit",
-            width='stretch',
             type="primary"
             if st.session_state.approach
             == "Rebalance RO and FIT levies from electricity to gas"
@@ -217,7 +214,6 @@ with st.sidebar:
         st.button(
             "All levies",
             key="taxation_all",
-            width='stretch',
             type="primary"
             if st.session_state.approach
             == "Remove all levies on electricity to taxation"
@@ -232,7 +228,6 @@ with st.sidebar:
             "RO + FIT only",
             help="Renewables Obligation and Feed-in Tariff",
             key="taxation_ro_fit",
-            width='stretch',
             type="primary"
             if st.session_state.approach
             == "Remove RO and FIT levies from electricity to taxation"
@@ -247,7 +242,6 @@ with st.sidebar:
 
     st.button(
         "✍️ Create my own",
-        width='stretch',
         type="primary" if st.session_state.approach == "Create my own" else "secondary",
         on_click=set_create_own,
         key="button_create_own"
@@ -634,7 +628,7 @@ try:
         st.markdown(f"**Comparison with [official Ofgem rates]({validation_result['validation_data']['source_url']})**: {validation_result['validation_data']['period']} ({validation_result['validation_data']['payment_method']})")
 
         # Display comparison table with individual RAG status
-        st.dataframe(validation_result['comparison_table'], width='stretch', hide_index=True)
+        st.dataframe(validation_result['comparison_table'], use_container_width=True, hide_index=True)
 
         st.caption(f"**Legend:** 🟢 Excellent (<0.25%) | 🟡 Acceptable (<1%) | 🔴 Issues (>1%)")
 
@@ -801,7 +795,7 @@ try:
     # Display styled dataframe - full width below chart
     st.dataframe(
         styled_table,
-        width='stretch',
+        use_container_width=True,
         height=400,
         hide_index=True
     )
@@ -902,7 +896,7 @@ try:
         **{'text-align': 'center'}
     )
 
-    st.dataframe(styled_hp_table, width='stretch', hide_index=True)
+    st.dataframe(styled_hp_table, use_container_width=True, hide_index=True)
 
     # Policy insights
     st.markdown("### 🎯 Policy Impact Summary")
