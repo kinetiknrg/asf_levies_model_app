@@ -442,6 +442,13 @@ with st.sidebar:
 
 
 try:
+    # Ensure rebalancing weights are set for current approach
+    if not st.session_state.rebalancing_weights and st.session_state.approach != "Create my own":
+        levies_copy = copy.deepcopy(levies)
+        st.session_state.rebalancing_weights = get_approach_weights(
+            levies_copy, st.session_state.approach
+        )
+
     # Rebalance levies based on chosen approach
     rebalanced_levies = levies.rebalance_levies(
         st.session_state.rebalancing_weights,
@@ -936,6 +943,10 @@ try:
 except Exception as e:
     st.error(f"🚨 **Error**: {type(e).__name__}")
     st.error(f"**Message**: {str(e)}")
+
+    # Debug info for production troubleshooting
+    st.info(f"**Approach**: {st.session_state.approach}")
+    st.info(f"**Weights available**: {bool(st.session_state.rebalancing_weights)}")
 
     with st.expander("🔍 **Error Details** (Click to expand)"):
         st.text(traceback.format_exc())

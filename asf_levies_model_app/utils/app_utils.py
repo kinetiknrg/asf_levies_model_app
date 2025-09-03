@@ -528,6 +528,10 @@ def make_all_archetypes_xy_chart(baseline_consumers: List, rebalanced_consumers:
     # Convert list to DataFrame after all data is collected
     chart_data = pd.DataFrame(chart_data)
 
+    # Data validation: Remove infinite/invalid values that crash Altair
+    chart_data = chart_data.replace([np.inf, -np.inf], np.nan)
+    chart_data = chart_data.dropna(subset=['gas_cost', 'electricity_cost'])
+
     # Color schemes
     scenario_colors = {
         'Baseline': '#1f77b4',      # Blue
@@ -553,13 +557,13 @@ def make_all_archetypes_xy_chart(baseline_consumers: List, rebalanced_consumers:
             'gas_cost:Q',
             title='Total Gas Cost (£, inc VAT)',
             axis=alt.Axis(grid=True, format=',.0f'),
-            scale=alt.Scale(domainMin=600)
+            scale=alt.Scale(zero=False)
         ),
         y=alt.Y(
             'electricity_cost:Q',
             title='Total Electricity Cost (£, inc VAT)',
             axis=alt.Axis(grid=True, format=',.0f'),
-            scale=alt.Scale(domainMin=600)
+            scale=alt.Scale(zero=False)
         ),
         color=alt.Color(
             'scenario:N',
