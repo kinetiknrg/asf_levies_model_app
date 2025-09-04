@@ -554,78 +554,78 @@ ratio_change_targeted = current_ratio_calc - targeted_ratio_calc
 
 # Create compact comparison table
 tariff_table_html = f"""
-<table style="width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 13px;">
+<table style="width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 16px;">
     <thead>
         <tr style="background-color: #f8f9fa; border-bottom: 2px solid #dee2e6;">
-            <th style="padding: 8px; text-align: left; border: 1px solid #dee2e6; font-weight: bold; font-size: 12px;">Category</th>
-            <th style="padding: 8px; text-align: left; border: 1px solid #dee2e6; font-weight: bold; font-size: 12px;">Rate Type</th>
-            <th style="padding: 8px; text-align: center; border: 1px solid #dee2e6; font-weight: bold; font-size: 12px;">📊 Status Quo</th>
-            <th style="padding: 8px; text-align: center; border: 1px solid #dee2e6; font-weight: bold; font-size: 12px;">⚖️ Complete Rebalancing</th>
-            <th style="padding: 8px; text-align: center; border: 1px solid #dee2e6; font-weight: bold; font-size: 12px;">🎯 Targeted Rebalancing</th>
+            <th style="padding: 12px; text-align: left; border: 1px solid #dee2e6; font-weight: bold; font-size: 15px;">Category</th>
+            <th style="padding: 12px; text-align: left; border: 1px solid #dee2e6; font-weight: bold; font-size: 15px;">Rate Type</th>
+            <th style="padding: 12px; text-align: center; border: 1px solid #dee2e6; font-weight: bold; font-size: 15px;">📊 Status Quo</th>
+            <th style="padding: 12px; text-align: center; border: 1px solid #dee2e6; font-weight: bold; font-size: 15px;">⚖️ Complete Rebalancing</th>
+            <th style="padding: 12px; text-align: center; border: 1px solid #dee2e6; font-weight: bold; font-size: 15px;">🎯 Targeted Rebalancing</th>
         </tr>
     </thead>
     <tbody>
         <tr style="border-bottom: 1px solid #dee2e6;">
-            <td rowspan="2" style="padding: 8px; border: 1px solid #dee2e6; font-weight: bold; color: #1f77b4; vertical-align: middle; font-size: 12px;">⚡ Electricity</td>
-            <td style="padding: 8px; border: 1px solid #dee2e6; font-size: 12px;">Unit Rate (p/kWh)</td>
-            <td style="padding: 8px; border: 1px solid #dee2e6; text-align: center; font-size: 12px;">{current_rates['elec_unit_rate']:.2f}</td>
-            <td style="padding: 8px; border: 1px solid #dee2e6; text-align: center; font-size: 12px;">
+            <td rowspan="2" style="padding: 12px; border: 1px solid #dee2e6; font-weight: bold; color: #1f77b4; vertical-align: middle; font-size: 15px;">⚡ Electricity</td>
+            <td style="padding: 12px; border: 1px solid #dee2e6; font-size: 15px;">Unit Rate (p/kWh)</td>
+            <td style="padding: 12px; border: 1px solid #dee2e6; text-align: center; font-size: 15px;">{current_rates['elec_unit_rate']:.2f}</td>
+            <td style="padding: 12px; border: 1px solid #dee2e6; text-align: center; font-size: 15px;">
                 {complete_rates['elec_unit_rate']:.2f}<br>
-                <span style="color: {'green' if elec_unit_change_complete < 0 else 'red'}; font-size: 11px;">({elec_unit_change_complete:+.2f})</span>
+                <span style="color: {'green' if elec_unit_change_complete < 0 else 'red'}; font-size: 14px;">({elec_unit_change_complete:+.2f})</span>
             </td>
-            <td style="padding: 8px; border: 1px solid #dee2e6; text-align: center; font-size: 12px;">
+            <td style="padding: 12px; border: 1px solid #dee2e6; text-align: center; font-size: 15px;">
                 {targeted_rates['elec_unit_rate']:.2f}<br>
-                <span style="color: {'green' if elec_unit_change_targeted < 0 else 'red'}; font-size: 11px;">({elec_unit_change_targeted:+.2f})</span>
+                <span style="color: {'green' if elec_unit_change_targeted < 0 else 'red'}; font-size: 14px;">({elec_unit_change_targeted:+.2f})</span>
             </td>
         </tr>
         <tr style="border-bottom: 1px solid #dee2e6; background-color: #f8f9fa;">
-            <td style="padding: 8px; border: 1px solid #dee2e6; font-size: 12px;">Standing Charge (p/day)</td>
-            <td style="padding: 8px; border: 1px solid #dee2e6; text-align: center; font-size: 12px;">{current_rates['elec_standing_charge']:.2f}</td>
-            <td style="padding: 8px; border: 1px solid #dee2e6; text-align: center; font-size: 12px;">
+            <td style="padding: 12px; border: 1px solid #dee2e6; font-size: 15px;">Standing Charge (p/day)</td>
+            <td style="padding: 12px; border: 1px solid #dee2e6; text-align: center; font-size: 15px;">{current_rates['elec_standing_charge']:.2f}</td>
+            <td style="padding: 12px; border: 1px solid #dee2e6; text-align: center; font-size: 15px;">
                 {complete_rates['elec_standing_charge']:.2f}<br>
-                <span style="color: {'green' if elec_standing_change_complete < 0 else 'red'}; font-size: 11px;">({elec_standing_change_complete:+.2f})</span>
+                <span style="color: {'green' if elec_standing_change_complete < 0 else 'red'}; font-size: 14px;">({elec_standing_change_complete:+.2f})</span>
             </td>
-            <td style="padding: 8px; border: 1px solid #dee2e6; text-align: center; font-size: 12px;">
+            <td style="padding: 12px; border: 1px solid #dee2e6; text-align: center; font-size: 15px;">
                 {targeted_rates['elec_standing_charge']:.2f}<br>
-                <span style="color: {'green' if elec_standing_change_targeted < 0 else 'red'}; font-size: 11px;">({elec_standing_change_targeted:+.2f})</span>
+                <span style="color: {'green' if elec_standing_change_targeted < 0 else 'red'}; font-size: 14px;">({elec_standing_change_targeted:+.2f})</span>
             </td>
         </tr>
         <tr style="border-bottom: 1px solid #dee2e6;">
-            <td rowspan="2" style="padding: 8px; border: 1px solid #dee2e6; font-weight: bold; color: #ff7f0e; vertical-align: middle; font-size: 12px;">🔥 Gas</td>
-            <td style="padding: 8px; border: 1px solid #dee2e6; font-size: 12px;">Unit Rate (p/kWh)</td>
-            <td style="padding: 8px; border: 1px solid #dee2e6; text-align: center; font-size: 12px;">{current_rates['gas_unit_rate']:.2f}</td>
-            <td style="padding: 8px; border: 1px solid #dee2e6; text-align: center; font-size: 12px;">
+            <td rowspan="2" style="padding: 12px; border: 1px solid #dee2e6; font-weight: bold; color: #ff7f0e; vertical-align: middle; font-size: 15px;">🔥 Gas</td>
+            <td style="padding: 12px; border: 1px solid #dee2e6; font-size: 15px;">Unit Rate (p/kWh)</td>
+            <td style="padding: 12px; border: 1px solid #dee2e6; text-align: center; font-size: 15px;">{current_rates['gas_unit_rate']:.2f}</td>
+            <td style="padding: 12px; border: 1px solid #dee2e6; text-align: center; font-size: 15px;">
                 {complete_rates['gas_unit_rate']:.2f}<br>
-                <span style="color: {'green' if gas_unit_change_complete < 0 else 'red'}; font-size: 11px;">({gas_unit_change_complete:+.2f})</span>
+                <span style="color: {'green' if gas_unit_change_complete < 0 else 'red'}; font-size: 14px;">({gas_unit_change_complete:+.2f})</span>
             </td>
-            <td style="padding: 8px; border: 1px solid #dee2e6; text-align: center; font-size: 12px;">
+            <td style="padding: 12px; border: 1px solid #dee2e6; text-align: center; font-size: 15px;">
                 {targeted_rates['gas_unit_rate']:.2f}<br>
-                <span style="color: {'green' if gas_unit_change_targeted < 0 else 'red'}; font-size: 11px;">({gas_unit_change_targeted:+.2f})</span>
+                <span style="color: {'green' if gas_unit_change_targeted < 0 else 'red'}; font-size: 14px;">({gas_unit_change_targeted:+.2f})</span>
             </td>
         </tr>
         <tr style="border-bottom: 1px solid #dee2e6; background-color: #f8f9fa;">
-            <td style="padding: 8px; border: 1px solid #dee2e6; font-size: 12px;">Standing Charge (p/day)</td>
-            <td style="padding: 8px; border: 1px solid #dee2e6; text-align: center; font-size: 12px;">{current_rates['gas_standing_charge']:.2f}</td>
-            <td style="padding: 8px; border: 1px solid #dee2e6; text-align: center; font-size: 12px;">
+            <td style="padding: 12px; border: 1px solid #dee2e6; font-size: 15px;">Standing Charge (p/day)</td>
+            <td style="padding: 12px; border: 1px solid #dee2e6; text-align: center; font-size: 15px;">{current_rates['gas_standing_charge']:.2f}</td>
+            <td style="padding: 12px; border: 1px solid #dee2e6; text-align: center; font-size: 15px;">
                 {complete_rates['gas_standing_charge']:.2f}<br>
-                <span style="color: {'green' if gas_standing_change_complete < 0 else 'red'}; font-size: 11px;">({gas_standing_change_complete:+.2f})</span>
+                <span style="color: {'green' if gas_standing_change_complete < 0 else 'red'}; font-size: 14px;">({gas_standing_change_complete:+.2f})</span>
             </td>
-            <td style="padding: 8px; border: 1px solid #dee2e6; text-align: center; font-size: 12px;">
+            <td style="padding: 12px; border: 1px solid #dee2e6; text-align: center; font-size: 15px;">
                 {targeted_rates['gas_standing_charge']:.2f}<br>
-                <span style="color: {'green' if gas_standing_change_targeted < 0 else 'red'}; font-size: 11px;">({gas_standing_change_targeted:+.2f})</span>
+                <span style="color: {'green' if gas_standing_change_targeted < 0 else 'red'}; font-size: 14px;">({gas_standing_change_targeted:+.2f})</span>
             </td>
         </tr>
         <tr style="border-bottom: 1px solid #dee2e6;">
-            <td style="padding: 8px; border: 1px solid #dee2e6; font-weight: bold; color: #2ca02c; vertical-align: middle; font-size: 12px;">⚖️ Ratio</td>
-            <td style="padding: 8px; border: 1px solid #dee2e6; font-size: 12px;">Elec/Gas Unit Rate</td>
-            <td style="padding: 8px; border: 1px solid #dee2e6; text-align: center; font-size: 12px;">{current_ratio_calc:.2f}</td>
-            <td style="padding: 8px; border: 1px solid #dee2e6; text-align: center; font-size: 12px;">
+            <td style="padding: 12px; border: 1px solid #dee2e6; font-weight: bold; color: #2ca02c; vertical-align: middle; font-size: 15px;">⚖️ Ratio</td>
+            <td style="padding: 12px; border: 1px solid #dee2e6; font-size: 15px;">Elec/Gas Unit Rate</td>
+            <td style="padding: 12px; border: 1px solid #dee2e6; text-align: center; font-size: 15px;">{current_ratio_calc:.2f}</td>
+            <td style="padding: 12px; border: 1px solid #dee2e6; text-align: center; font-size: 15px;">
                 {complete_ratio_calc:.2f}<br>
-                <span style="color: green; font-size: 11px;">({-ratio_change_complete:+.2f})</span>
+                <span style="color: green; font-size: 14px;">({-ratio_change_complete:+.2f})</span>
             </td>
-            <td style="padding: 8px; border: 1px solid #dee2e6; text-align: center; font-size: 12px;">
+            <td style="padding: 12px; border: 1px solid #dee2e6; text-align: center; font-size: 15px;">
                 {targeted_ratio_calc:.2f}<br>
-                <span style="color: green; font-size: 11px;">({-ratio_change_targeted:+.2f})</span>
+                <span style="color: green; font-size: 14px;">({-ratio_change_targeted:+.2f})</span>
             </td>
         </tr>
     </tbody>
@@ -695,43 +695,7 @@ hp_analysis_targeted = analyze_heat_pump_economics(
     current_gas_tariff, targeted_gas_tariff
 )
 
-# Key metrics display
-col1, col2, col3, col4 = st.columns(4)
-
-with col1:
-    st.metric(
-        label="Complete Rebalancing Ratio",
-        value=f"{hp_analysis_complete['rebalanced_ratio']:.2f}",
-        delta=f"{hp_analysis_complete['rebalanced_ratio'] - hp_analysis_complete['baseline_ratio']:+.2f}"
-    )
-    ratio_status = "✅ Competitive" if hp_analysis_complete['rebalanced_ratio'] < hp_analysis_complete['heat_pump_spf'] else "❌ Not competitive"
-    st.caption(f"Heat pump threshold: {hp_analysis_complete['heat_pump_spf']:.1f}")
-    st.caption(ratio_status)
-
-with col2:
-    st.metric(
-        label="Targeted Rebalancing Ratio",
-        value=f"{hp_analysis_targeted['rebalanced_ratio']:.2f}",
-        delta=f"{hp_analysis_targeted['rebalanced_ratio'] - hp_analysis_targeted['baseline_ratio']:+.2f}"
-    )
-    targeted_status = "✅ Competitive" if hp_analysis_targeted['rebalanced_ratio'] < hp_analysis_targeted['heat_pump_spf'] else "❌ Not competitive"
-    st.caption(targeted_status)
-
-with col3:
-    st.metric(
-        label="Complete: Archetypes Benefiting",
-        value=f"{hp_analysis_complete['rebalanced_winners']}",
-        delta=f"{hp_analysis_complete['rebalanced_winners'] - hp_analysis_complete['baseline_winners']:+d}"
-    )
-    st.caption(f"Out of {hp_analysis_complete['total_gas_archetypes']} gas archetypes")
-
-with col4:
-    st.metric(
-        label="Targeted: Archetypes Benefiting",
-        value=f"{hp_analysis_targeted['rebalanced_winners']}",
-        delta=f"{hp_analysis_targeted['rebalanced_winners'] - hp_analysis_targeted['baseline_winners']:+d}"
-    )
-    st.caption(f"Out of {hp_analysis_targeted['total_gas_archetypes']} gas archetypes")
+# Heat pump analysis proceeds directly to table
 
 # Heat pump analysis table
 st.markdown("### 📊 Heat Pump Economics by Archetype")
