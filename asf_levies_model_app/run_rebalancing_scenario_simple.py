@@ -110,6 +110,9 @@ supply_gas = 266_505_188.0
 customers_elec = 29_239_936
 customers_gas = 24_605_467
 
+# Load levies data
+levies = load_levies()
+
 denominators = set_common_denominators(
     levies,
     supply_elec=supply_elec,
