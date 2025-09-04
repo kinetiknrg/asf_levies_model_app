@@ -113,7 +113,7 @@ customers_gas = 24_605_467
 # Load levies data
 levies = load_levies()
 
- denominators = set_common_denominators(
+denominators = set_common_denominators(
     levies,
     supply_elec=supply_elec,
     supply_gas=supply_gas,
@@ -727,7 +727,7 @@ with col3:
 
 with col4:
     st.metric(
-        label="Targeted: Archetypes Benefiting", 
+        label="Targeted: Archetypes Benefiting",
         value=f"{hp_analysis_targeted['rebalanced_winners']}",
         delta=f"{hp_analysis_targeted['rebalanced_winners'] - hp_analysis_targeted['baseline_winners']:+d}"
     )
@@ -758,7 +758,7 @@ table_display = combined_data[[
 ]].copy()
 
 table_display.columns = [
-    'Archetype', 'Gas (MWh)', 'HP Elec (MWh)', 
+    'Archetype', 'Gas (MWh)', 'HP Elec (MWh)',
     'Targeted Rebalancing', 'Complete Rebalancing'
 ]
 
@@ -787,7 +787,7 @@ with col2:
     st.info(f"**🎯 Targeted Rebalancing**: Electricity-to-gas ratio is {hp_analysis_targeted['rebalanced_ratio']:.2f}, {'below' if hp_analysis_targeted['rebalanced_ratio'] < hp_analysis_targeted['heat_pump_spf'] else 'above'} heat pump threshold")
     targeted_improvement = hp_analysis_targeted['rebalanced_winners'] - hp_analysis_targeted['baseline_winners']
     st.metric(
-        label="Additional Competitive", 
+        label="Additional Competitive",
         value=f"+{targeted_improvement}",
         delta=f"{hp_analysis_targeted['rebalanced_winners']}/{hp_analysis_targeted['total_gas_archetypes']} total"
     )
