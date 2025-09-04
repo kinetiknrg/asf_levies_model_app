@@ -28,8 +28,9 @@ st.set_page_config(
     page_title="NESTA Levies Rebalancing Model + Heat Pump Analysis", page_icon="🏠", layout="wide"
 )
 
-st.title("Ofgem Levies Rebalancing & Heat Pump Analysis App💡")
-st.markdown("**Based on original work by the [A Sustainable Future](https://www.nesta.org.uk/sustainable-future/) team at Nesta**")
+st.title("UK Energy Policy Levies Rebalancing & Heat Pump Analysis App")
+st.markdown("**This app is a simplified extension of original work by the [A Sustainable Future](https://www.nesta.org.uk/sustainable-future/) team at Nesta**")
+st.header("Original NESTA Rebalancing App")
 
 # Create styled panels for links
 col1, col2, col3 = st.columns(3)
@@ -103,11 +104,6 @@ def load_levies():
     fileobject.close()
     return levies
 
-
-st.write("🔍 DEBUG: Loading levies...")
-levies = load_levies()
-st.write("✅ DEBUG: Levies loaded successfully")
-
 # Create dictionary of denominators for each levy
 supply_elec = 96_517_461.0
 supply_gas = 266_505_188.0
@@ -128,6 +124,150 @@ denominators = set_common_denominators(
 st.markdown("---")
 st.markdown("### 🎯 Policy Scenario Comparison")
 st.markdown("**All three policy scenarios calculated simultaneously for comprehensive comparison**")
+
+# Static scenario explanation panels
+col1, col2, col3 = st.columns(3)
+
+with col1:
+    st.markdown("""
+    <div style='padding: 20px; background: linear-gradient(135deg, #f0f8ff 0%, #e6f3ff 100%); border-radius: 10px; border-left: 5px solid #1f77b4; margin-bottom: 10px;'>
+        <h4 style='margin: 0 0 10px 0; color: #1f77b4;'>📊 Status Quo</h4>
+        <p style='margin: 0; font-size: 14px; color: #333;'>
+            <strong>Current levy distribution maintained</strong><br>
+            All 7 policy levies remain split between electricity and gas bills as they are today.
+            This represents the baseline scenario for comparison.
+        </p>
+        <ul style='margin: 5px 0 0 20px; font-size: 13px; color: #666;'>
+            <li>No changes to current system</li>
+            <li>Electricity bills remain expensive relative to gas</li>
+            <li>Heat pumps face cost disadvantage</li>
+        </ul>
+    </div>
+    """, unsafe_allow_html=True)
+
+with col2:
+    st.markdown("""
+    <div style='padding: 20px; background: linear-gradient(135deg, #fff0f0 0%, #ffe6e6 100%); border-radius: 10px; border-left: 5px solid #d62728; margin-bottom: 10px;'>
+        <h4 style='margin: 0 0 10px 0; color: #d62728;'>⚖️ Complete Rebalancing</h4>
+        <p style='margin: 0; font-size: 14px; color: #333;'>
+            <strong>Move ALL electricity levies to gas bills</strong><br>
+            All 7 policy levies (RO, AAHEDC, FIT, ECO, WHD, GGL, NCC) are moved entirely to gas bills.
+            Maximum reduction in electricity-to-gas cost ratio.
+        </p>
+        <ul style='margin: 5px 0 0 20px; font-size: 13px; color: #666;'>
+            <li>Electricity bills reduced significantly</li>
+            <li>Gas bills increased proportionally</li>
+            <li>Maximum heat pump advantage</li>
+        </ul>
+    </div>
+    """, unsafe_allow_html=True)
+
+with col3:
+    st.markdown("""
+    <div style='padding: 20px; background: linear-gradient(135deg, #f0fff0 0%, #e6ffe6 100%); border-radius: 10px; border-left: 5px solid #2ca02c; margin-bottom: 10px;'>
+        <h4 style='margin: 0 0 10px 0; color: #2ca02c;'>🎯 Targeted Rebalancing</h4>
+        <p style='margin: 0; font-size: 14px; color: #333;'>
+            <strong>Move RO and FIT levies only to gas bills</strong><br>
+            Only the Renewables Obligation (RO) and Feed-in Tariffs (FIT) are moved to gas bills.
+            Moderate reduction in electricity-to-gas cost ratio.
+        </p>
+        <ul style='margin: 5px 0 0 20px; font-size: 13px; color: #666;'>
+            <li>Focused on renewable support costs</li>
+            <li>Balanced approach to rebalancing</li>
+            <li>Modest heat pump improvement</li>
+        </ul>
+    </div>
+    """, unsafe_allow_html=True)
+
+# Policy Levies Reference Table
+st.markdown("---")
+st.markdown("#### 📋 Policy Scheme Levies Reference")
+st.markdown("*Table 1: Policy scheme levies included in the Ofgem energy price cap, their total scheme amounts and estimated domestic share*")
+
+levy_table_html = """
+<table style="width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px;">
+    <thead>
+        <tr style="background-color: #f8f9fa; border-bottom: 2px solid #dee2e6;">
+            <th style="padding: 12px; text-align: left; border: 1px solid #dee2e6; font-weight: bold;">Levy</th>
+            <th style="padding: 12px; text-align: left; border: 1px solid #dee2e6; font-weight: bold;">Full Name</th>
+            <th style="padding: 12px; text-align: right; border: 1px solid #dee2e6; font-weight: bold;">Total Scheme (£B)</th>
+            <th style="padding: 12px; text-align: right; border: 1px solid #dee2e6; font-weight: bold;">Domestic Share (%)</th>
+            <th style="padding: 12px; text-align: right; border: 1px solid #dee2e6; font-weight: bold;">Electricity (%)</th>
+            <th style="padding: 12px; text-align: right; border: 1px solid #dee2e6; font-weight: bold;">Gas (%)</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr style="border-bottom: 1px solid #dee2e6;">
+            <td style="padding: 10px; border: 1px solid #dee2e6; font-weight: bold; color: #2ca02c;">RO</td>
+            <td style="padding: 10px; border: 1px solid #dee2e6;">Renewables Obligation</td>
+            <td style="padding: 10px; border: 1px solid #dee2e6; text-align: right;">£6.8</td>
+            <td style="padding: 10px; border: 1px solid #dee2e6; text-align: right;">85%</td>
+            <td style="padding: 10px; border: 1px solid #dee2e6; text-align: right; background-color: #fff3cd;">100%</td>
+            <td style="padding: 10px; border: 1px solid #dee2e6; text-align: right;">0%</td>
+        </tr>
+        <tr style="border-bottom: 1px solid #dee2e6; background-color: #f8f9fa;">
+            <td style="padding: 10px; border: 1px solid #dee2e6; font-weight: bold; color: #d62728;">FIT</td>
+            <td style="padding: 10px; border: 1px solid #dee2e6;">Feed-in Tariffs</td>
+            <td style="padding: 10px; border: 1px solid #dee2e6; text-align: right;">£1.2</td>
+            <td style="padding: 10px; border: 1px solid #dee2e6; text-align: right;">82%</td>
+            <td style="padding: 10px; border: 1px solid #dee2e6; text-align: right; background-color: #fff3cd;">100%</td>
+            <td style="padding: 10px; border: 1px solid #dee2e6; text-align: right;">0%</td>
+        </tr>
+        <tr style="border-bottom: 1px solid #dee2e6;">
+            <td style="padding: 10px; border: 1px solid #dee2e6; font-weight: bold; color: #ff7f0e;">ECO</td>
+            <td style="padding: 10px; border: 1px solid #dee2e6;">Energy Company Obligation</td>
+            <td style="padding: 10px; border: 1px solid #dee2e6; text-align: right;">£2.7</td>
+            <td style="padding: 10px; border: 1px solid #dee2e6; text-align: right;">100%</td>
+            <td style="padding: 10px; border: 1px solid #dee2e6; text-align: right; background-color: #e6f3ff;">80%</td>
+            <td style="padding: 10px; border: 1px solid #dee2e6; text-align: right; background-color: #e6f3ff;">20%</td>
+        </tr>
+        <tr style="border-bottom: 1px solid #dee2e6; background-color: #f8f9fa;">
+            <td style="padding: 10px; border: 1px solid #dee2e6; font-weight: bold; color: #1f77b4;">WHD</td>
+            <td style="padding: 10px; border: 1px solid #dee2e6;">Warm Homes Discount</td>
+            <td style="padding: 10px; border: 1px solid #dee2e6; text-align: right;">£0.3</td>
+            <td style="padding: 10px; border: 1px solid #dee2e6; text-align: right;">100%</td>
+            <td style="padding: 10px; border: 1px solid #dee2e6; text-align: right; background-color: #e6f3ff;">67%</td>
+            <td style="padding: 10px; border: 1px solid #dee2e6; text-align: right; background-color: #e6f3ff;">33%</td>
+        </tr>
+        <tr style="border-bottom: 1px solid #dee2e6;">
+            <td style="padding: 10px; border: 1px solid #dee2e6; font-weight: bold; color: #9467bd;">AAHEDC</td>
+            <td style="padding: 10px; border: 1px solid #dee2e6;">Assistance for Areas with High Electricity Distribution Costs</td>
+            <td style="padding: 10px; border: 1px solid #dee2e6; text-align: right;">£0.04</td>
+            <td style="padding: 10px; border: 1px solid #dee2e6; text-align: right;">100%</td>
+            <td style="padding: 10px; border: 1px solid #dee2e6; text-align: right; background-color: #fff3cd;">100%</td>
+            <td style="padding: 10px; border: 1px solid #dee2e6; text-align: right;">0%</td>
+        </tr>
+        <tr style="border-bottom: 1px solid #dee2e6; background-color: #f8f9fa;">
+            <td style="padding: 10px; border: 1px solid #dee2e6; font-weight: bold; color: #8c564b;">GGL</td>
+            <td style="padding: 10px; border: 1px solid #dee2e6;">Green Gas Levy</td>
+            <td style="padding: 10px; border: 1px solid #dee2e6; text-align: right;">£0.14</td>
+            <td style="padding: 10px; border: 1px solid #dee2e6; text-align: right;">100%</td>
+            <td style="padding: 10px; border: 1px solid #dee2e6; text-align: right;">0%</td>
+            <td style="padding: 10px; border: 1px solid #dee2e6; text-align: right; background-color: #fff3cd;">100%</td>
+        </tr>
+        <tr style="border-bottom: 1px solid #dee2e6;">
+            <td style="padding: 10px; border: 1px solid #dee2e6; font-weight: bold; color: #e377c2;">NCC</td>
+            <td style="padding: 10px; border: 1px solid #dee2e6;">Network Charging Compensation</td>
+            <td style="padding: 10px; border: 1px solid #dee2e6; text-align: right;">£0.2</td>
+            <td style="padding: 10px; border: 1px solid #dee2e6; text-align: right;">85%</td>
+            <td style="padding: 10px; border: 1px solid #dee2e6; text-align: right; background-color: #fff3cd;">100%</td>
+            <td style="padding: 10px; border: 1px solid #dee2e6; text-align: right;">0%</td>
+        </tr>
+    </tbody>
+</table>
+"""
+
+st.markdown(levy_table_html, unsafe_allow_html=True)
+
+st.markdown("**Legend:**")
+col_a, col_b, col_c = st.columns(3)
+with col_a:
+    st.markdown("🟡 **Electricity only** (100% electricity, 0% gas)")
+with col_b:
+    st.markdown("🔵 **Mixed funding** (split between electricity & gas)")
+with col_c:
+    st.markdown("🟠 **Gas only** (0% electricity, 100% gas)")
+
 st.markdown("---")
 
 # Calculate weights for all three scenarios
