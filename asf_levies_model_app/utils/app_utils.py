@@ -478,52 +478,64 @@ def make_archetype_bill_change_chart(rebalanced_summary_table, chart_width=1000)
     return chart
 
 
-def make_all_archetypes_xy_chart(baseline_consumers: List, rebalanced_consumers: List, ofgem_archetypes_df: pd.DataFrame, chart_width=800):
+def make_all_archetypes_xy_chart(current_consumers: List, complete_consumers: List, targeted_consumers: List, ofgem_archetypes_df: pd.DataFrame, chart_width=800):
     """
     Create XY scatter chart showing gas cost (x-axis) vs electricity cost (y-axis)
-    for all archetypes, with before and after rebalancing points.
+    for all archetypes, with all 3 policy scenarios.
     """
 
     # Create data for all archetypes
     chart_data = []
 
-    for baseline_consumer, rebalanced_consumer in zip(baseline_consumers, rebalanced_consumers):
+    for current_consumer, complete_consumer, targeted_consumer in zip(current_consumers, complete_consumers, targeted_consumers):
         # FILTER: Only include gas-heated archetypes in gas consumer chart
-        if baseline_consumer.main_heating_fuel != "Gas":
+        if current_consumer.main_heating_fuel != "Gas":
             continue
 
         # Get archetype description from the dataframe
         archetype_info = ofgem_archetypes_df[
-            ofgem_archetypes_df["AnnualConsumptionProfile"] == baseline_consumer.name
+            ofgem_archetypes_df["AnnualConsumptionProfile"] == current_consumer.name
         ]
 
         archetype_desc = archetype_info["ArchetypeNickname"].iloc[0] if len(archetype_info) > 0 else "Description not available"
         archetype_size = archetype_info["ArchetypeSize"].iloc[0] if len(archetype_info) > 0 else 0
-        heating_fuel = baseline_consumer.main_heating_fuel
+        heating_fuel = current_consumer.main_heating_fuel
 
-        # Baseline point
+        # Status Quo point
         chart_data.append({
-            'gas_cost': baseline_consumer.gas_bill,
-            'electricity_cost': baseline_consumer.electricity_bill,
-            'scenario': 'Baseline',
-            'archetype': baseline_consumer.name,
+            'gas_cost': current_consumer.gas_bill,
+            'electricity_cost': current_consumer.electricity_bill,
+            'scenario': 'Status Quo',
+            'archetype': current_consumer.name,
             'description': archetype_desc,
             'heating_fuel': heating_fuel,
-            'total_bill': baseline_consumer.combined_fuel_bill,
+            'total_bill': current_consumer.combined_fuel_bill,
             'archetype_size': archetype_size
         })
 
-        # Rebalanced point
+        # Complete Rebalancing point
         chart_data.append({
-            'gas_cost': rebalanced_consumer.gas_bill,
-            'electricity_cost': rebalanced_consumer.electricity_bill,
-            'scenario': 'Rebalanced',
-            'archetype': rebalanced_consumer.name,
+            'gas_cost': complete_consumer.gas_bill,
+            'electricity_cost': complete_consumer.electricity_bill,
+            'scenario': 'Complete Rebalancing',
+            'archetype': complete_consumer.name,
             'description': archetype_desc,
             'heating_fuel': heating_fuel,
-            'total_bill': rebalanced_consumer.combined_fuel_bill,
+            'total_bill': complete_consumer.combined_fuel_bill,
             'archetype_size': archetype_size
-                })
+        })
+
+        # Targeted Rebalancing point
+        chart_data.append({
+            'gas_cost': targeted_consumer.gas_bill,
+            'electricity_cost': targeted_consumer.electricity_bill,
+            'scenario': 'Targeted Rebalancing',
+            'archetype': targeted_consumer.name,
+            'description': archetype_desc,
+            'heating_fuel': heating_fuel,
+            'total_bill': targeted_consumer.combined_fuel_bill,
+            'archetype_size': archetype_size
+        })
 
     # Convert list to DataFrame after all data is collected
     chart_data = pd.DataFrame(chart_data)
@@ -534,8 +546,9 @@ def make_all_archetypes_xy_chart(baseline_consumers: List, rebalanced_consumers:
 
     # Color schemes
     scenario_colors = {
-        'Baseline': '#1f77b4',      # Blue
-        'Rebalanced': '#ff7f0e'     # Orange
+        'Status Quo': '#1f77b4',           # Blue
+        'Complete Rebalancing': '#ff7f0e', # Orange
+        'Targeted Rebalancing': '#2ca02c'  # Green
     }
 
     # Heating fuel colors (matching existing app pattern)
@@ -767,11 +780,11 @@ def validate_app_rates_against_ofgem(baseline_electricity_tariff, baseline_gas_t
     # RAG status function
     def get_rag_status(pct_diff):
         if pct_diff < 0.25:
-            return "🟢 Excellent"
+            return "🟢"
         elif pct_diff < 1.0:
-            return "🟡 Acceptable"
+            return "🟡"
         else:
-            return "🔴 Issues"
+            return "🔴"
 
     # Create comparison table with RAG status
     comparison_data = pd.DataFrame([

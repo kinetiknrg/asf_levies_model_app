@@ -113,7 +113,7 @@ customers_gas = 24_605_467
 # Load levies data
 levies = load_levies()
 
-denominators = set_common_denominators(
+ denominators = set_common_denominators(
     levies,
     supply_elec=supply_elec,
     supply_gas=supply_gas,
@@ -193,7 +193,7 @@ levy_table_html = """
         <tr style="background-color: #f8f9fa; border-bottom: 2px solid #dee2e6;">
             <th style="padding: 12px; text-align: left; border: 1px solid #dee2e6; font-weight: bold;">Levy</th>
             <th style="padding: 12px; text-align: left; border: 1px solid #dee2e6; font-weight: bold;">Full Name</th>
-            <th style="padding: 12px; text-align: right; border: 1px solid #dee2e6; font-weight: bold;">Total Scheme (£B)</th>
+            <th style="padding: 12px; text-align: right; border: 1px solid #dee2e6; font-weight: bold;">Total Scheme (£M)</th>
             <th style="padding: 12px; text-align: right; border: 1px solid #dee2e6; font-weight: bold;">Domestic Share (%)</th>
             <th style="padding: 12px; text-align: right; border: 1px solid #dee2e6; font-weight: bold;">Electricity (%)</th>
             <th style="padding: 12px; text-align: right; border: 1px solid #dee2e6; font-weight: bold;">Gas (%)</th>
@@ -203,7 +203,7 @@ levy_table_html = """
         <tr style="border-bottom: 1px solid #dee2e6;">
             <td style="padding: 10px; border: 1px solid #dee2e6; font-weight: bold; color: #2ca02c;">RO</td>
             <td style="padding: 10px; border: 1px solid #dee2e6;">Renewables Obligation</td>
-            <td style="padding: 10px; border: 1px solid #dee2e6; text-align: right;">£6.8</td>
+            <td style="padding: 10px; border: 1px solid #dee2e6; text-align: right;">£6,800</td>
             <td style="padding: 10px; border: 1px solid #dee2e6; text-align: right;">85%</td>
             <td style="padding: 10px; border: 1px solid #dee2e6; text-align: right; background-color: #fff3cd;">100%</td>
             <td style="padding: 10px; border: 1px solid #dee2e6; text-align: right;">0%</td>
@@ -211,7 +211,7 @@ levy_table_html = """
         <tr style="border-bottom: 1px solid #dee2e6; background-color: #f8f9fa;">
             <td style="padding: 10px; border: 1px solid #dee2e6; font-weight: bold; color: #d62728;">FIT</td>
             <td style="padding: 10px; border: 1px solid #dee2e6;">Feed-in Tariffs</td>
-            <td style="padding: 10px; border: 1px solid #dee2e6; text-align: right;">£1.2</td>
+            <td style="padding: 10px; border: 1px solid #dee2e6; text-align: right;">£1,200</td>
             <td style="padding: 10px; border: 1px solid #dee2e6; text-align: right;">82%</td>
             <td style="padding: 10px; border: 1px solid #dee2e6; text-align: right; background-color: #fff3cd;">100%</td>
             <td style="padding: 10px; border: 1px solid #dee2e6; text-align: right;">0%</td>
@@ -219,7 +219,7 @@ levy_table_html = """
         <tr style="border-bottom: 1px solid #dee2e6;">
             <td style="padding: 10px; border: 1px solid #dee2e6; font-weight: bold; color: #ff7f0e;">ECO</td>
             <td style="padding: 10px; border: 1px solid #dee2e6;">Energy Company Obligation</td>
-            <td style="padding: 10px; border: 1px solid #dee2e6; text-align: right;">£2.7</td>
+            <td style="padding: 10px; border: 1px solid #dee2e6; text-align: right;">£2,700</td>
             <td style="padding: 10px; border: 1px solid #dee2e6; text-align: right;">100%</td>
             <td style="padding: 10px; border: 1px solid #dee2e6; text-align: right; background-color: #e6f3ff;">80%</td>
             <td style="padding: 10px; border: 1px solid #dee2e6; text-align: right; background-color: #e6f3ff;">20%</td>
@@ -227,7 +227,7 @@ levy_table_html = """
         <tr style="border-bottom: 1px solid #dee2e6; background-color: #f8f9fa;">
             <td style="padding: 10px; border: 1px solid #dee2e6; font-weight: bold; color: #1f77b4;">WHD</td>
             <td style="padding: 10px; border: 1px solid #dee2e6;">Warm Homes Discount</td>
-            <td style="padding: 10px; border: 1px solid #dee2e6; text-align: right;">£0.3</td>
+            <td style="padding: 10px; border: 1px solid #dee2e6; text-align: right;">£300</td>
             <td style="padding: 10px; border: 1px solid #dee2e6; text-align: right;">100%</td>
             <td style="padding: 10px; border: 1px solid #dee2e6; text-align: right; background-color: #e6f3ff;">67%</td>
             <td style="padding: 10px; border: 1px solid #dee2e6; text-align: right; background-color: #e6f3ff;">33%</td>
@@ -235,7 +235,7 @@ levy_table_html = """
         <tr style="border-bottom: 1px solid #dee2e6;">
             <td style="padding: 10px; border: 1px solid #dee2e6; font-weight: bold; color: #9467bd;">AAHEDC</td>
             <td style="padding: 10px; border: 1px solid #dee2e6;">Assistance for Areas with High Electricity Distribution Costs</td>
-            <td style="padding: 10px; border: 1px solid #dee2e6; text-align: right;">£0.04</td>
+            <td style="padding: 10px; border: 1px solid #dee2e6; text-align: right;">£40</td>
             <td style="padding: 10px; border: 1px solid #dee2e6; text-align: right;">100%</td>
             <td style="padding: 10px; border: 1px solid #dee2e6; text-align: right; background-color: #fff3cd;">100%</td>
             <td style="padding: 10px; border: 1px solid #dee2e6; text-align: right;">0%</td>
@@ -243,15 +243,15 @@ levy_table_html = """
         <tr style="border-bottom: 1px solid #dee2e6; background-color: #f8f9fa;">
             <td style="padding: 10px; border: 1px solid #dee2e6; font-weight: bold; color: #8c564b;">GGL</td>
             <td style="padding: 10px; border: 1px solid #dee2e6;">Green Gas Levy</td>
-            <td style="padding: 10px; border: 1px solid #dee2e6; text-align: right;">£0.14</td>
+            <td style="padding: 10px; border: 1px solid #dee2e6; text-align: right;">£140</td>
             <td style="padding: 10px; border: 1px solid #dee2e6; text-align: right;">100%</td>
             <td style="padding: 10px; border: 1px solid #dee2e6; text-align: right;">0%</td>
-            <td style="padding: 10px; border: 1px solid #dee2e6; text-align: right; background-color: #fff3cd;">100%</td>
+            <td style="padding: 10px; border: 1px solid #dee2e6; text-align: right; background-color: #ffe6cc;">100%</td>
         </tr>
         <tr style="border-bottom: 1px solid #dee2e6;">
             <td style="padding: 10px; border: 1px solid #dee2e6; font-weight: bold; color: #e377c2;">NCC</td>
             <td style="padding: 10px; border: 1px solid #dee2e6;">Network Charging Compensation</td>
-            <td style="padding: 10px; border: 1px solid #dee2e6; text-align: right;">£0.2</td>
+            <td style="padding: 10px; border: 1px solid #dee2e6; text-align: right;">£200</td>
             <td style="padding: 10px; border: 1px solid #dee2e6; text-align: right;">85%</td>
             <td style="padding: 10px; border: 1px solid #dee2e6; text-align: right; background-color: #fff3cd;">100%</td>
             <td style="padding: 10px; border: 1px solid #dee2e6; text-align: right;">0%</td>
@@ -447,35 +447,6 @@ with st.expander("📊 **Data Sources**", expanded=True):
     st.info("🔍 **Data Currency**: Ofgem updates energy price cap data quarterly.")
     st.warning("⚠️ **Important**: Analysis results reflect the specific Ofgem data period loaded. CHECK IT'S UP TO DATE")
 
-# Summary metrics for all 3 scenarios
-col1, col2, col3 = st.columns(3)
-
-with col1:
-    st.markdown("### 📊 Status Quo")
-    st.metric("Elec/Gas Ratio", f"{current_ratio:.2f}")
-    st.metric("Taxpayer Cost", f"£{current_cost_to_tax/1_000_000_000:.2f}B/yr")
-    st.metric("Typical Bill", f"£{current_price_cap:.0f}/yr")
-
-with col2:
-    st.markdown("### ⚖️ Complete Rebalancing")
-    ratio_change = current_ratio - complete_ratio
-    cost_change = (complete_cost_to_tax - current_cost_to_tax) / 1_000_000_000
-    bill_change = complete_price_cap - current_price_cap
-
-    st.metric("Elec/Gas Ratio", f"{complete_ratio:.2f}", f"{-ratio_change:+.2f}")
-    st.metric("Taxpayer Cost", f"£{complete_cost_to_tax/1_000_000_000:.2f}B/yr", f"£{cost_change:+.2f}B/yr")
-    st.metric("Typical Bill", f"£{complete_price_cap:.0f}/yr", f"£{bill_change:+.0f}/yr")
-
-with col3:
-    st.markdown("### 🎯 Targeted Rebalancing")
-    ratio_change_t = current_ratio - targeted_ratio
-    cost_change_t = (targeted_cost_to_tax - current_cost_to_tax) / 1_000_000_000
-    bill_change_t = targeted_price_cap - current_price_cap
-
-    st.metric("Elec/Gas Ratio", f"{targeted_ratio:.2f}", f"{-ratio_change_t:+.2f}")
-    st.metric("Taxpayer Cost", f"£{targeted_cost_to_tax/1_000_000_000:.2f}B/yr", f"£{cost_change_t:+.2f}B/yr")
-    st.metric("Typical Bill", f"£{targeted_price_cap:.0f}/yr", f"£{bill_change_t:+.0f}/yr")
-
 # Data period status
 st.markdown("---")
 if current_date < start_date:
@@ -502,7 +473,7 @@ if validation_result:
     # Display comparison table with individual RAG status
     st.dataframe(validation_result['comparison_table'], use_container_width=True, hide_index=True)
 
-    st.caption(f"**Legend:** 🟢 Excellent (<0.25%) | 🟡 Acceptable (<1%) | 🔴 Issues (>1%)")
+    st.caption(f"**Legend:** 🟢 <0.25% | 🟡 <1% | 🔴 >1%")
 
     # Add explanation for denominator differences
     with st.expander("ℹ️ **Why do app rates differ slightly from official Ofgem rates?**", expanded=False):
@@ -563,63 +534,105 @@ targeted_rates = get_tariff_rates(targeted_electricity_tariff, targeted_gas_tari
 st.markdown("<h4>📊 Detailed Tariff Rate Comparison: All Scenarios</h4>", unsafe_allow_html=True)
 st.info("ℹ️ **All tariff rates shown include VAT at 5%** - matching published Ofgem price cap rates")
 
-# 3-scenario detailed comparison
-col1, col2, col3 = st.columns(3)
+# Calculate ratios and changes
+current_ratio_calc = current_rates['elec_unit_rate'] / current_rates['gas_unit_rate']
+complete_ratio_calc = complete_rates['elec_unit_rate'] / complete_rates['gas_unit_rate']
+targeted_ratio_calc = targeted_rates['elec_unit_rate'] / targeted_rates['gas_unit_rate']
 
-with col1:
-    st.markdown("#### 📊 Status Quo")
+# Calculate changes from status quo
+elec_unit_change_complete = complete_rates['elec_unit_rate'] - current_rates['elec_unit_rate']
+elec_standing_change_complete = complete_rates['elec_standing_charge'] - current_rates['elec_standing_charge']
+gas_unit_change_complete = complete_rates['gas_unit_rate'] - current_rates['gas_unit_rate']
+gas_standing_change_complete = complete_rates['gas_standing_charge'] - current_rates['gas_standing_charge']
+ratio_change_complete = current_ratio_calc - complete_ratio_calc
 
-    st.markdown("**Electricity**")
-    st.metric("Unit Rate", f"{current_rates['elec_unit_rate']:.2f} p/kWh")
-    st.metric("Standing Charge", f"{current_rates['elec_standing_charge']:.2f} p/day")
+elec_unit_change_targeted = targeted_rates['elec_unit_rate'] - current_rates['elec_unit_rate']
+elec_standing_change_targeted = targeted_rates['elec_standing_charge'] - current_rates['elec_standing_charge']
+gas_unit_change_targeted = targeted_rates['gas_unit_rate'] - current_rates['gas_unit_rate']
+gas_standing_change_targeted = targeted_rates['gas_standing_charge'] - current_rates['gas_standing_charge']
+ratio_change_targeted = current_ratio_calc - targeted_ratio_calc
 
-    st.markdown("**Gas**")
-    st.metric("Unit Rate", f"{current_rates['gas_unit_rate']:.2f} p/kWh")
-    st.metric("Standing Charge", f"{current_rates['gas_standing_charge']:.2f} p/day")
+# Create compact comparison table
+tariff_table_html = f"""
+<table style="width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 13px;">
+    <thead>
+        <tr style="background-color: #f8f9fa; border-bottom: 2px solid #dee2e6;">
+            <th style="padding: 8px; text-align: left; border: 1px solid #dee2e6; font-weight: bold; font-size: 12px;">Category</th>
+            <th style="padding: 8px; text-align: left; border: 1px solid #dee2e6; font-weight: bold; font-size: 12px;">Rate Type</th>
+            <th style="padding: 8px; text-align: center; border: 1px solid #dee2e6; font-weight: bold; font-size: 12px;">📊 Status Quo</th>
+            <th style="padding: 8px; text-align: center; border: 1px solid #dee2e6; font-weight: bold; font-size: 12px;">⚖️ Complete Rebalancing</th>
+            <th style="padding: 8px; text-align: center; border: 1px solid #dee2e6; font-weight: bold; font-size: 12px;">🎯 Targeted Rebalancing</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr style="border-bottom: 1px solid #dee2e6;">
+            <td rowspan="2" style="padding: 8px; border: 1px solid #dee2e6; font-weight: bold; color: #1f77b4; vertical-align: middle; font-size: 12px;">⚡ Electricity</td>
+            <td style="padding: 8px; border: 1px solid #dee2e6; font-size: 12px;">Unit Rate (p/kWh)</td>
+            <td style="padding: 8px; border: 1px solid #dee2e6; text-align: center; font-size: 12px;">{current_rates['elec_unit_rate']:.2f}</td>
+            <td style="padding: 8px; border: 1px solid #dee2e6; text-align: center; font-size: 12px;">
+                {complete_rates['elec_unit_rate']:.2f}<br>
+                <span style="color: {'green' if elec_unit_change_complete < 0 else 'red'}; font-size: 11px;">({elec_unit_change_complete:+.2f})</span>
+            </td>
+            <td style="padding: 8px; border: 1px solid #dee2e6; text-align: center; font-size: 12px;">
+                {targeted_rates['elec_unit_rate']:.2f}<br>
+                <span style="color: {'green' if elec_unit_change_targeted < 0 else 'red'}; font-size: 11px;">({elec_unit_change_targeted:+.2f})</span>
+            </td>
+        </tr>
+        <tr style="border-bottom: 1px solid #dee2e6; background-color: #f8f9fa;">
+            <td style="padding: 8px; border: 1px solid #dee2e6; font-size: 12px;">Standing Charge (p/day)</td>
+            <td style="padding: 8px; border: 1px solid #dee2e6; text-align: center; font-size: 12px;">{current_rates['elec_standing_charge']:.2f}</td>
+            <td style="padding: 8px; border: 1px solid #dee2e6; text-align: center; font-size: 12px;">
+                {complete_rates['elec_standing_charge']:.2f}<br>
+                <span style="color: {'green' if elec_standing_change_complete < 0 else 'red'}; font-size: 11px;">({elec_standing_change_complete:+.2f})</span>
+            </td>
+            <td style="padding: 8px; border: 1px solid #dee2e6; text-align: center; font-size: 12px;">
+                {targeted_rates['elec_standing_charge']:.2f}<br>
+                <span style="color: {'green' if elec_standing_change_targeted < 0 else 'red'}; font-size: 11px;">({elec_standing_change_targeted:+.2f})</span>
+            </td>
+        </tr>
+        <tr style="border-bottom: 1px solid #dee2e6;">
+            <td rowspan="2" style="padding: 8px; border: 1px solid #dee2e6; font-weight: bold; color: #ff7f0e; vertical-align: middle; font-size: 12px;">🔥 Gas</td>
+            <td style="padding: 8px; border: 1px solid #dee2e6; font-size: 12px;">Unit Rate (p/kWh)</td>
+            <td style="padding: 8px; border: 1px solid #dee2e6; text-align: center; font-size: 12px;">{current_rates['gas_unit_rate']:.2f}</td>
+            <td style="padding: 8px; border: 1px solid #dee2e6; text-align: center; font-size: 12px;">
+                {complete_rates['gas_unit_rate']:.2f}<br>
+                <span style="color: {'green' if gas_unit_change_complete < 0 else 'red'}; font-size: 11px;">({gas_unit_change_complete:+.2f})</span>
+            </td>
+            <td style="padding: 8px; border: 1px solid #dee2e6; text-align: center; font-size: 12px;">
+                {targeted_rates['gas_unit_rate']:.2f}<br>
+                <span style="color: {'green' if gas_unit_change_targeted < 0 else 'red'}; font-size: 11px;">({gas_unit_change_targeted:+.2f})</span>
+            </td>
+        </tr>
+        <tr style="border-bottom: 1px solid #dee2e6; background-color: #f8f9fa;">
+            <td style="padding: 8px; border: 1px solid #dee2e6; font-size: 12px;">Standing Charge (p/day)</td>
+            <td style="padding: 8px; border: 1px solid #dee2e6; text-align: center; font-size: 12px;">{current_rates['gas_standing_charge']:.2f}</td>
+            <td style="padding: 8px; border: 1px solid #dee2e6; text-align: center; font-size: 12px;">
+                {complete_rates['gas_standing_charge']:.2f}<br>
+                <span style="color: {'green' if gas_standing_change_complete < 0 else 'red'}; font-size: 11px;">({gas_standing_change_complete:+.2f})</span>
+            </td>
+            <td style="padding: 8px; border: 1px solid #dee2e6; text-align: center; font-size: 12px;">
+                {targeted_rates['gas_standing_charge']:.2f}<br>
+                <span style="color: {'green' if gas_standing_change_targeted < 0 else 'red'}; font-size: 11px;">({gas_standing_change_targeted:+.2f})</span>
+            </td>
+        </tr>
+        <tr style="border-bottom: 1px solid #dee2e6;">
+            <td style="padding: 8px; border: 1px solid #dee2e6; font-weight: bold; color: #2ca02c; vertical-align: middle; font-size: 12px;">⚖️ Ratio</td>
+            <td style="padding: 8px; border: 1px solid #dee2e6; font-size: 12px;">Elec/Gas Unit Rate</td>
+            <td style="padding: 8px; border: 1px solid #dee2e6; text-align: center; font-size: 12px;">{current_ratio_calc:.2f}</td>
+            <td style="padding: 8px; border: 1px solid #dee2e6; text-align: center; font-size: 12px;">
+                {complete_ratio_calc:.2f}<br>
+                <span style="color: green; font-size: 11px;">({-ratio_change_complete:+.2f})</span>
+            </td>
+            <td style="padding: 8px; border: 1px solid #dee2e6; text-align: center; font-size: 12px;">
+                {targeted_ratio_calc:.2f}<br>
+                <span style="color: green; font-size: 11px;">({-ratio_change_targeted:+.2f})</span>
+            </td>
+        </tr>
+    </tbody>
+</table>
+"""
 
-    st.markdown("**Ratio**")
-    current_ratio_calc = current_rates['elec_unit_rate'] / current_rates['gas_unit_rate']
-    st.metric("Elec/Gas Ratio", f"{current_ratio_calc:.2f}", help="Electricity ÷ Gas unit rate")
-
-with col2:
-    st.markdown("#### ⚖️ Complete Rebalancing")
-
-    st.markdown("**Electricity**")
-    elec_unit_change = complete_rates['elec_unit_rate'] - current_rates['elec_unit_rate']
-    elec_standing_change = complete_rates['elec_standing_charge'] - current_rates['elec_standing_charge']
-    st.metric("Unit Rate", f"{complete_rates['elec_unit_rate']:.2f} p/kWh", f"{elec_unit_change:+.2f}")
-    st.metric("Standing Charge", f"{complete_rates['elec_standing_charge']:.2f} p/day", f"{elec_standing_change:+.2f}")
-
-    st.markdown("**Gas**")
-    gas_unit_change = complete_rates['gas_unit_rate'] - current_rates['gas_unit_rate']
-    gas_standing_change = complete_rates['gas_standing_charge'] - current_rates['gas_standing_charge']
-    st.metric("Unit Rate", f"{complete_rates['gas_unit_rate']:.2f} p/kWh", f"{gas_unit_change:+.2f}")
-    st.metric("Standing Charge", f"{complete_rates['gas_standing_charge']:.2f} p/day", f"{gas_standing_change:+.2f}")
-
-    st.markdown("**Ratio**")
-    complete_ratio_calc = complete_rates['elec_unit_rate'] / complete_rates['gas_unit_rate']
-    ratio_change = current_ratio_calc - complete_ratio_calc
-    st.metric("Elec/Gas Ratio", f"{complete_ratio_calc:.2f}", f"{-ratio_change:+.2f}")
-
-with col3:
-    st.markdown("#### 🎯 Targeted Rebalancing")
-
-    st.markdown("**Electricity**")
-    elec_unit_change_t = targeted_rates['elec_unit_rate'] - current_rates['elec_unit_rate']
-    elec_standing_change_t = targeted_rates['elec_standing_charge'] - current_rates['elec_standing_charge']
-    st.metric("Unit Rate", f"{targeted_rates['elec_unit_rate']:.2f} p/kWh", f"{elec_unit_change_t:+.2f}")
-    st.metric("Standing Charge", f"{targeted_rates['elec_standing_charge']:.2f} p/day", f"{elec_standing_change_t:+.2f}")
-
-    st.markdown("**Gas**")
-    gas_unit_change_t = targeted_rates['gas_unit_rate'] - current_rates['gas_unit_rate']
-    gas_standing_change_t = targeted_rates['gas_standing_charge'] - current_rates['gas_standing_charge']
-    st.metric("Unit Rate", f"{targeted_rates['gas_unit_rate']:.2f} p/kWh", f"{gas_unit_change_t:+.2f}")
-    st.metric("Standing Charge", f"{targeted_rates['gas_standing_charge']:.2f} p/day", f"{gas_standing_change_t:+.2f}")
-
-    st.markdown("**Ratio**")
-    targeted_ratio_calc = targeted_rates['elec_unit_rate'] / targeted_rates['gas_unit_rate']
-    ratio_change_t = current_ratio_calc - targeted_ratio_calc
-    st.metric("Elec/Gas Ratio", f"{targeted_ratio_calc:.2f}", f"{-ratio_change_t:+.2f}")
+st.markdown(tariff_table_html, unsafe_allow_html=True)
 
 st.markdown("---")
 
@@ -627,10 +640,11 @@ st.markdown("---")
 st.markdown("<h4>🏠 Energy Cost Analysis: Gas Consumer Archetypes</h4>", unsafe_allow_html=True)
 st.caption("Gas cost (x-axis) vs Electricity cost (y-axis) for gas-heated consumer archetypes only. **All costs include VAT at 5%.** Bubble size represents number of households. Non-gas archetypes are hidden from chart but shown greyed out in reference table below.")
 
-# Full-width chart (showing current vs complete rebalancing)
+# Full-width chart (showing all 3 scenarios)
 xy_chart = make_all_archetypes_xy_chart(
-    baseline_consumers=current_consumers,
-    rebalanced_consumers=complete_consumers,
+    current_consumers=current_consumers,
+    complete_consumers=complete_consumers,
+    targeted_consumers=targeted_consumers,
     ofgem_archetypes_df=ofgem_archetypes_df,
     chart_width=900
 )
@@ -668,11 +682,17 @@ st.markdown("---")
 st.markdown("<h4>🏠 Heat Pump Retrofit Analysis: The Purpose of Levy Rebalancing</h4>", unsafe_allow_html=True)
 st.caption("Analysis of how levy rebalancing affects the economics of switching from gas boilers to electric heat pumps")
 
-# Perform heat pump analysis (comparing current vs complete rebalancing)
-hp_analysis = analyze_heat_pump_economics(
+# Perform heat pump analysis for both rebalancing scenarios
+hp_analysis_complete = analyze_heat_pump_economics(
     current_consumers, complete_consumers,
     current_electricity_tariff, complete_electricity_tariff,
     current_gas_tariff, complete_gas_tariff
+)
+
+hp_analysis_targeted = analyze_heat_pump_economics(
+    current_consumers, targeted_consumers,
+    current_electricity_tariff, targeted_electricity_tariff,
+    current_gas_tariff, targeted_gas_tariff
 )
 
 # Key metrics display
@@ -680,78 +700,72 @@ col1, col2, col3, col4 = st.columns(4)
 
 with col1:
     st.metric(
-        label="Electricity/Gas Ratio",
-        value=f"{hp_analysis['rebalanced_ratio']:.2f}",
-        delta=f"{hp_analysis['rebalanced_ratio'] - hp_analysis['baseline_ratio']:+.2f}"
+        label="Complete Rebalancing Ratio",
+        value=f"{hp_analysis_complete['rebalanced_ratio']:.2f}",
+        delta=f"{hp_analysis_complete['rebalanced_ratio'] - hp_analysis_complete['baseline_ratio']:+.2f}"
     )
-    ratio_status = "✅ Competitive" if hp_analysis['rebalanced_ratio'] < hp_analysis['heat_pump_spf'] else "❌ Not competitive"
-    st.caption(f"Heat pump threshold: {hp_analysis['heat_pump_spf']:.1f}")
+    ratio_status = "✅ Competitive" if hp_analysis_complete['rebalanced_ratio'] < hp_analysis_complete['heat_pump_spf'] else "❌ Not competitive"
+    st.caption(f"Heat pump threshold: {hp_analysis_complete['heat_pump_spf']:.1f}")
     st.caption(ratio_status)
 
 with col2:
     st.metric(
-        label="Archetypes Benefiting",
-        value=f"{hp_analysis['rebalanced_winners']}",
-        delta=f"{hp_analysis['rebalanced_winners'] - hp_analysis['baseline_winners']:+d}"
+        label="Targeted Rebalancing Ratio",
+        value=f"{hp_analysis_targeted['rebalanced_ratio']:.2f}",
+        delta=f"{hp_analysis_targeted['rebalanced_ratio'] - hp_analysis_targeted['baseline_ratio']:+.2f}"
     )
-    st.caption(f"Out of {hp_analysis['total_gas_archetypes']} gas archetypes")
+    targeted_status = "✅ Competitive" if hp_analysis_targeted['rebalanced_ratio'] < hp_analysis_targeted['heat_pump_spf'] else "❌ Not competitive"
+    st.caption(targeted_status)
 
 with col3:
     st.metric(
-        label="Average Improvement",
-        value=f"£{hp_analysis['avg_improvement']:+,.0f}",
-        delta=None
+        label="Complete: Archetypes Benefiting",
+        value=f"{hp_analysis_complete['rebalanced_winners']}",
+        delta=f"{hp_analysis_complete['rebalanced_winners'] - hp_analysis_complete['baseline_winners']:+d}"
     )
-    st.caption("Annual savings per household")
+    st.caption(f"Out of {hp_analysis_complete['total_gas_archetypes']} gas archetypes")
 
 with col4:
-    # Policy assessment for complete rebalancing scenario
-    if hp_analysis['rebalanced_ratio'] < hp_analysis['heat_pump_spf']:
-        st.success("🎯 **POLICY SUCCESS**")
-        st.caption("Heat pumps now competitive")
-    else:
-        st.warning("⚠️ **PARTIAL PROGRESS**")
-        st.caption("Further rebalancing needed")
+    st.metric(
+        label="Targeted: Archetypes Benefiting", 
+        value=f"{hp_analysis_targeted['rebalanced_winners']}",
+        delta=f"{hp_analysis_targeted['rebalanced_winners'] - hp_analysis_targeted['baseline_winners']:+d}"
+    )
+    st.caption(f"Out of {hp_analysis_targeted['total_gas_archetypes']} gas archetypes")
 
 # Heat pump analysis table
 st.markdown("### 📊 Heat Pump Economics by Archetype")
 
-# Format display table with proper formatting
-display_data = hp_analysis['analysis_data'].copy()
+# Create combined heat pump analysis table
+complete_data = hp_analysis_complete['analysis_data'].copy()
+targeted_data = hp_analysis_targeted['analysis_data'].copy()
 
-# Format MWh to 3 decimal places
-display_data['gas_formatted'] = display_data['gas_consumption_mwh'].apply(lambda x: f"{x:.3f}")
-display_data['hp_elec_formatted'] = display_data['hp_elec_demand_mwh'].apply(lambda x: f"{x:.3f}")
+# Merge the two analyses on archetype
+combined_data = complete_data[['archetype', 'gas_consumption_mwh', 'hp_elec_demand_mwh']].copy()
+combined_data['targeted_saving'] = targeted_data['rebalanced_saving']
+combined_data['complete_saving'] = complete_data['rebalanced_saving']
 
-# Format currency values
-display_data['baseline_saving_formatted'] = display_data['baseline_saving'].apply(lambda x: f"£{x:+,.0f}")
-display_data['rebalanced_saving_formatted'] = display_data['rebalanced_saving'].apply(lambda x: f"£{x:+,.0f}")
-display_data['improvement_formatted'] = display_data['improvement'].apply(lambda x: f"£{x:+,.0f}")
+# Format display values
+combined_data['gas_formatted'] = combined_data['gas_consumption_mwh'].apply(lambda x: f"{x:.3f}")
+combined_data['hp_elec_formatted'] = combined_data['hp_elec_demand_mwh'].apply(lambda x: f"{x:.3f}")
+combined_data['targeted_saving_formatted'] = combined_data['targeted_saving'].apply(lambda x: f"£{x:+,.0f}")
+combined_data['complete_saving_formatted'] = combined_data['complete_saving'].apply(lambda x: f"£{x:+,.0f}")
 
-# Add competitiveness indicators
-display_data['baseline_status'] = display_data['baseline_competitive'].apply(lambda x: "✅" if x else "❌")
-display_data['rebalanced_status'] = display_data['rebalanced_competitive'].apply(lambda x: "✅" if x else "❌")
-
-# Select columns for display
-table_display = display_data[[
+# Create final display table
+table_display = combined_data[[
     'archetype', 'gas_formatted', 'hp_elec_formatted',
-    'baseline_saving_formatted', 'baseline_status',
-    'rebalanced_saving_formatted', 'rebalanced_status',
-    'improvement_formatted'
+    'targeted_saving_formatted', 'complete_saving_formatted'
 ]].copy()
 
 table_display.columns = [
-    'Archetype', 'Gas (MWh)', 'HP Elec (MWh)',
-    'Baseline Saving', 'Baseline', 'Rebalanced Saving', 'Rebalanced', 'Improvement'
+    'Archetype', 'Gas (MWh)', 'HP Elec (MWh)', 
+    'Targeted Rebalancing', 'Complete Rebalancing'
 ]
 
-# Apply styling for alignment
+# Apply styling for right alignment of numbers
 styled_hp_table = table_display.style.set_properties(
-    subset=['Gas (MWh)', 'HP Elec (MWh)', 'Baseline Saving', 'Rebalanced Saving', 'Improvement'],
+    subset=['Gas (MWh)', 'HP Elec (MWh)', 'Targeted Rebalancing', 'Complete Rebalancing'],
     **{'text-align': 'right'}
-).set_properties(
-    subset=['Baseline', 'Rebalanced'],
-    **{'text-align': 'center'}
 )
 
 st.dataframe(styled_hp_table, use_container_width=True, hide_index=True)
@@ -759,94 +773,47 @@ st.dataframe(styled_hp_table, use_container_width=True, hide_index=True)
 # Policy insights
 st.markdown("### 🎯 Policy Impact Summary")
 
-# Policy impact summary (comparing current vs complete rebalancing)
-col1, col2 = st.columns(2)
+# Policy impact summary (comparing both rebalancing scenarios)
+col1, col2, col3 = st.columns(3)
 
 with col1:
-    st.info(f"**📊 Current State**: Electricity-to-gas ratio is {hp_analysis['baseline_ratio']:.2f}, above heat pump competitiveness threshold of {hp_analysis['heat_pump_spf']:.1f}")
+    st.info(f"**📊 Current State**: Electricity-to-gas ratio is {hp_analysis_complete['baseline_ratio']:.2f}, above heat pump competitiveness threshold of {hp_analysis_complete['heat_pump_spf']:.1f}")
     st.metric(
-        label="Current Heat Pump Competitive Archetypes",
-        value=f"{hp_analysis['baseline_winners']}/{hp_analysis['total_gas_archetypes']}"
+        label="Current Competitive Archetypes",
+        value=f"{hp_analysis_complete['baseline_winners']}/{hp_analysis_complete['total_gas_archetypes']}"
     )
 
 with col2:
-    st.info(f"**⚖️ Complete Rebalancing**: Electricity-to-gas ratio is {hp_analysis['rebalanced_ratio']:.2f}, {'below' if hp_analysis['rebalanced_ratio'] < hp_analysis['heat_pump_spf'] else 'above'} heat pump competitiveness threshold")
-    improvement = hp_analysis['rebalanced_winners'] - hp_analysis['baseline_winners']
+    st.info(f"**🎯 Targeted Rebalancing**: Electricity-to-gas ratio is {hp_analysis_targeted['rebalanced_ratio']:.2f}, {'below' if hp_analysis_targeted['rebalanced_ratio'] < hp_analysis_targeted['heat_pump_spf'] else 'above'} heat pump threshold")
+    targeted_improvement = hp_analysis_targeted['rebalanced_winners'] - hp_analysis_targeted['baseline_winners']
     st.metric(
-        label="Additional Competitive Archetypes",
-        value=f"+{improvement}",
-        delta=f"{hp_analysis['rebalanced_winners']}/{hp_analysis['total_gas_archetypes']} total"
+        label="Additional Competitive", 
+        value=f"+{targeted_improvement}",
+        delta=f"{hp_analysis_targeted['rebalanced_winners']}/{hp_analysis_targeted['total_gas_archetypes']} total"
+    )
+
+with col3:
+    st.info(f"**⚖️ Complete Rebalancing**: Electricity-to-gas ratio is {hp_analysis_complete['rebalanced_ratio']:.2f}, {'below' if hp_analysis_complete['rebalanced_ratio'] < hp_analysis_complete['heat_pump_spf'] else 'above'} heat pump threshold")
+    complete_improvement = hp_analysis_complete['rebalanced_winners'] - hp_analysis_complete['baseline_winners']
+    st.metric(
+        label="Additional Competitive",
+        value=f"+{complete_improvement}",
+        delta=f"{hp_analysis_complete['rebalanced_winners']}/{hp_analysis_complete['total_gas_archetypes']} total"
     )
 
 # Overall policy assessment
-if hp_analysis['rebalanced_ratio'] < hp_analysis['heat_pump_spf']:
-    st.success(f"**🏆 Policy Success**: Heat pump competitiveness achieved through levy rebalancing")
-else:
-    st.warning(f"**⚠️ Partial Progress**: Ratio improved from {hp_analysis['baseline_ratio']:.2f} to {hp_analysis['rebalanced_ratio']:.2f}, but still above heat pump threshold")
-
-# Economic impact
-if hp_analysis['avg_improvement'] > 0:
-    st.success(f"**💰 Economic Benefit**: Average £{hp_analysis['avg_improvement']:,.0f}/year improvement in heat pump economics per household")
-else:
-    st.warning(f"**💸 Economic Impact**: Average £{abs(hp_analysis['avg_improvement']):,.0f}/year cost increase per household")
-
 st.markdown("---")
-
-# Result: Distribution impacts dot chart (using current vs complete rebalancing)
-baseline_summary_table = tidy_to_pivot_summary(
-    get_tidy_summary(current_consumers, "Current")
-)
-rebalanced_summary_table = tidy_to_pivot_summary(
-    get_tidy_summary(complete_consumers, "Complete Rebalancing")
-)
-# Add bill change column
-rebalanced_summary_table["bill_change"] = (
-    rebalanced_summary_table["combined_fuel_bill"]
-    - baseline_summary_table["combined_fuel_bill"]
-)
-
-# Add archetype sizes
-
-archetype_sizes = data.ofgem_archetypes_data()[
-    ["AnnualConsumptionProfile", "ArchetypeSize"]
-]
-archetype_sizes = archetype_sizes.rename(
-    columns={
-        "AnnualConsumptionProfile": "Name",
-    }
-)
-rebalanced_summary_table = rebalanced_summary_table.merge(
-    archetype_sizes, on="Name", how="left"
-)
-
-st.markdown(
-    f"<p style='color:black; font-size: 20px;'><b>Distributional impacts: Effect on energy bills</b></p>",
-    unsafe_allow_html=True,
-)
 col1, col2 = st.columns(2)
+
+with col1:
+    if hp_analysis_targeted['rebalanced_ratio'] < hp_analysis_targeted['heat_pump_spf']:
+        st.success(f"**🎯 Targeted Success**: Heat pump competitiveness achieved with RO+FIT rebalancing")
+    else:
+        st.warning(f"**🎯 Targeted Progress**: Ratio improved from {hp_analysis_targeted['baseline_ratio']:.2f} to {hp_analysis_targeted['rebalanced_ratio']:.2f}, but still above threshold")
+
 with col2:
-    st.info(
-        f"**Typical household bill: £{complete_price_cap:,.2f}** *(Current: £{current_price_cap:,.2f})*"
-    )
+    if hp_analysis_complete['rebalanced_ratio'] < hp_analysis_complete['heat_pump_spf']:
+        st.success(f"**⚖️ Complete Success**: Heat pump competitiveness achieved with full rebalancing")
+    else:
+        st.warning(f"**⚖️ Complete Progress**: Ratio improved from {hp_analysis_complete['baseline_ratio']:.2f} to {hp_analysis_complete['rebalanced_ratio']:.2f}, but still above threshold")
 
-chart = make_archetype_bill_change_chart(rebalanced_summary_table, chart_width=1000)
-st.altair_chart(chart)
-
-# Option to view results table
-if st.button("View distributional impacts results table"):
-    # Show link to distributional effects summary dataframe for download
-    @st.cache_data
-    def convert_df(df):
-        return df.to_csv(index=False).encode("utf-8")
-
-    csv = convert_df(rebalanced_summary_table)
-
-    st.download_button(
-        "Download table",
-        csv,
-        "rebalanced_scenario_distributional_effect.csv",
-        "text/csv",
-        key="download-csv",
-    )
-
-    st.write(rebalanced_summary_table)
