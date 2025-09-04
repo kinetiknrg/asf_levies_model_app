@@ -393,16 +393,15 @@ with st.sidebar:
         )
 
 
-try:
-    # Rebalance levies based on chosen approach
-    rebalanced_levies = levies.rebalance_levies(
-        st.session_state.rebalancing_weights,
-        scenario_name="Rebalanced",
-    )
+# Rebalance levies based on chosen approach
+rebalanced_levies = levies.rebalance_levies(
+    st.session_state.rebalancing_weights,
+    scenario_name="Rebalanced",
+)
 
-    # Instantiate baseline and rebalanced tariffs
-    @st.cache_data
-    def load_tariffs():
+# Instantiate baseline and rebalanced tariffs
+@st.cache_data
+def load_tariffs():
         fileobject = data.download_annex_9(as_fileobject=True)
         baseline_tariffs = instantiate_tariffs(
             fileobject_annex_9=fileobject, payment_method="Other Payment"
@@ -414,7 +413,7 @@ try:
             fileobject.close()
         return baseline_tariffs, rebalanced_tariffs
 
-    baseline_tariffs, rebalanced_tariffs = load_tariffs()
+baseline_tariffs, rebalanced_tariffs = load_tariffs()
 
     baseline_electricity_tariff = update_electricity_tariff_policy_cost(
         baseline_tariffs["electricity"], levies
@@ -884,14 +883,3 @@ try:
                 st.success(f"**Economic Benefit**: Average £{hp_analysis['avg_improvement']:,.0f}/year improvement in heat pump economics")
             else:
                 st.warning(f"**Economic Impact**: Average £{abs(hp_analysis['avg_improvement']):,.0f}/year cost increase")
-
-except Exception as e:
-    st.error(f"🚨 **Error**: {type(e).__name__}")
-    st.error(f"**Message**: {str(e)}")
-
-    # Debug info for production troubleshooting
-    st.info(f"**Approach**: {st.session_state.approach}")
-    st.info(f"**Weights available**: {bool(st.session_state.rebalancing_weights)}")
-
-    with st.expander("🔍 **Error Details** (Click to expand)"):
-        st.text(traceback.format_exc())

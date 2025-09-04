@@ -1,0 +1,10 @@
+[33ma2587ca[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mdev[m[33m, [m[1;31morigin/dev[m[33m, [m[1;31morigin/HEAD[m[33m)[m agent removed try/except block which it claims silently swallows errors and creates blank screens - let's see if it worked
+[33m7a5890b[m Session State Management: Removed illegal assignment conflicting with keyed widget Restored automatic state handling via st.radio Fixed Streamlit API compliance for production
+[33m0a4aa7f[m created .streamlit/config.toml to handle Streamlit file watcher exceeds Linux inotify limits
+[33mfc4e399[m reverted to original NESTA st.radio functionality for scenario selection to handle Streamlit version compatibility issues between dev and prod
+[33mae127ba[m Fix race condition causing blank screen on scenario button clicks
+[33m2bd22d1[m Streamlit Community versioning issue prod resolution
+[33m75a25e3[m what a palava, great work done Mon/Tue AM completely undone in the PM when migrating to prod revealed data handling issues-cache, with rogue agent undoing a lot of work; finally back to working app - let's see if it migrates to prod
+[33m390702c[m Fix IndexError: correct archetype indexing after dataframe filtering
+[33m49906cd[m Fix missing function import: remove non-existent style_archetype_reference_table
+[33m9f1d998[m Fix archetype data corruption: filter to primary 24 archetypes only
