@@ -357,7 +357,7 @@ if validation_result:
     st.markdown(f"**Comparison with [official Ofgem rates]({validation_result['validation_data']['source_url']})**: {validation_result['validation_data']['period']} ({validation_result['validation_data']['payment_method']})")
 
     # Display comparison table with individual RAG status
-    st.dataframe(validation_result['comparison_table'], width='stretch', hide_index=True)
+    st.dataframe(validation_result['comparison_table'], use_container_width=True, hide_index=True)
 
     st.caption(f"**Legend:** 🟢 Excellent (<0.25%) | 🟡 Acceptable (<1%) | 🔴 Issues (>1%)")
 
@@ -515,7 +515,7 @@ styled_table = ref_table.style.apply(highlight_non_gas, axis=1).set_properties(*
 # Display styled dataframe - full width below chart
 st.dataframe(
     styled_table,
-    width='stretch',
+    use_container_width=True,
     height=400,
     hide_index=True
 )
@@ -611,7 +611,7 @@ styled_hp_table = table_display.style.set_properties(
     **{'text-align': 'center'}
 )
 
-st.dataframe(styled_hp_table, width='stretch', hide_index=True)
+st.dataframe(styled_hp_table, use_container_width=True, hide_index=True)
 
 # Policy insights
 st.markdown("### 🎯 Policy Impact Summary")
