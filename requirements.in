@@ -1,5 +1,5 @@
 altair
 pandas
 PyYAML
-streamlit
+streamlit>=1.48.1
 asf_levies_model @ git+https://github.com/kinetiknrg/asf_levies_model

@@ -2,7 +2,7 @@
 altair
 pandas
 PyYAML
-streamlit
+streamlit>=1.48.1
 
 # Development dependencies
 -e ../asf_levies_model  # <-- Local, editable version of the backend
